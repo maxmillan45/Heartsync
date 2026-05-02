@@ -1,102 +1,170 @@
+# ============================================
+# IMPORTS - Loading required libraries
+# ============================================
+
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+# Flask: The web framework
+# render_template: Renders HTML files
+# request: Handles incoming data from forms and APIs
+# jsonify: Converts Python dicts to JSON responses
+# session: Stores user data between requests (like being logged in)
+# redirect: Sends users to different pages
+# url_for: Generates URLs for routes
+
 from werkzeug.utils import secure_filename
+# Secures uploaded filenames to prevent hacking
+
 from werkzeug.security import generate_password_hash, check_password_hash
+# generate_password_hash: Turns passwords into secure hashes
+# check_password_hash: Verifies a password against its hash
+
 from PIL import Image, ImageEnhance, ImageFilter
+# PIL (Pillow): Handles image processing like resizing and enhancing
+
 import os
+# Operating system interface - for file paths and environment variables
+
 import json
+# Handles JSON data
+
 from datetime import datetime, timedelta
+# datetime: Gets current time
+# timedelta: Calculates time differences (like "7 days from now")
+
 from functools import wraps
+# Creates decorators that wrap functions (like login_required)
+
 from authlib.integrations.flask_client import OAuth
+# Handles Google OAuth (sign in with Google)
+
 import secrets
+# Generates secure random tokens
+
 import re
+# Regular expressions - for pattern matching in text
+
 from collections import defaultdict
+# Creates dictionaries with default values
+
 import io
-import os
+# Handles binary data streams
 
 from dotenv import load_dotenv
+# Loads environment variables from .env file
 
-# Load environment variables from .env file
-load_dotenv()
+# ============================================
+# LOAD ENVIRONMENT VARIABLES
+# ============================================
 
+load_dotenv()  # Reads the .env file and loads variables into os.environ
 
-app = Flask(__name__)
-app.secret_key = 'heartsync-secret-key-2024-change-this-in-production'
-app.permanent_session_lifetime = timedelta(days=7)
+# ============================================
+# FLASK APP CONFIGURATION
+# ============================================
 
+app = Flask(__name__)  # Creates the Flask application
+app.secret_key = 'heartsync-secret-key-2024-change-this-in-production'  # Used to encrypt session data
+app.permanent_session_lifetime = timedelta(days=7)  # Users stay logged in for 7 days
 
-# Google OAuth Configuration - Use environment variables for security
+# ============================================
+# GOOGLE OAUTH SETUP
+# ============================================
+
+# Get Google credentials from environment variables (for security)
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 
+# Check if credentials were found
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
     print("WARNING: Google OAuth credentials not found. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.")
-oauth = OAuth(app)
+
+oauth = OAuth(app)  # Initialize OAuth
 google = oauth.register(
-    name='google',
-    client_id=GOOGLE_CLIENT_ID,
-    client_secret=GOOGLE_CLIENT_SECRET,
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'}
+    name='google',  # Name for this OAuth provider
+    client_id=GOOGLE_CLIENT_ID,  # Your Google app ID
+    client_secret=GOOGLE_CLIENT_SECRET,  # Your Google app secret
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',  # Google's config URL
+    client_kwargs={'scope': 'openid email profile'}  # What info to request from Google
 )
 
-# Configuration
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff'}
-MAX_CONTENT_LENGTH = 50 * 1024 * 1024
+# ============================================
+# FILE UPLOAD CONFIGURATION
+# ============================================
+
+UPLOAD_FOLDER = 'static/uploads'  # Where uploaded files are stored
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff'}  # Allowed image types
+MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # Max file size: 50 Megabytes
 
 # Image quality settings
-AVATAR_SIZE = (500, 500)
-PHOTO_SIZE = (1200, 1200)
-JPEG_QUALITY = 95
-PNG_QUALITY = 95
+AVATAR_SIZE = (500, 500)  # Profile pictures: 500x500 pixels
+PHOTO_SIZE = (1200, 1200)  # Gallery photos: 1200x1200 pixels
+JPEG_QUALITY = 95  # JPEG quality (1-100, higher is better)
+PNG_QUALITY = 95  # PNG quality
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
-# Create upload folders
+# Create upload folders if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs('static/uploads/avatars', exist_ok=True)
 os.makedirs('static/uploads/photos', exist_ok=True)
 
-# Professional Categories
+# ============================================
+# USER CATEGORIES
+# ============================================
+
 CATEGORIES = {
-    'student': {'name': 'Student', 'icon': '(S)', 'color': 'blue', 'description': 'Currently studying and looking for meaningful connections'},
+    'student': {'name': 'Student', 'icon': '(S)', 'color': 'blue', 'description': 'Currently studying'},
     'gamer': {'name': 'Gamer', 'icon': '(G)', 'color': 'green', 'description': 'Passionate about gaming'},
-    'professional': {'name': 'Professional', 'icon': '(P)', 'color': 'purple', 'description': 'Career-focused individual'},
-    'fitness': {'name': 'Fitness Enthusiast', 'icon': '(F)', 'color': 'orange', 'description': 'Active lifestyle enthusiast'},
-    'creative': {'name': 'Creative', 'icon': '(C)', 'color': 'pink', 'description': 'Artist, musician, or writer'},
-    'traveler': {'name': 'Traveler', 'icon': '(T)', 'color': 'teal', 'description': 'Love exploring new places'},
-    'foodie': {'name': 'Foodie', 'icon': '(Fd)', 'color': 'red', 'description': 'Passionate about food and dining'},
-    'no_category': {'name': 'No Category', 'icon': '(N)', 'color': 'gray', 'description': 'Prefer not to be categorized'}
+    'professional': {'name': 'Professional', 'icon': '(P)', 'color': 'purple', 'description': 'Career-focused'},
+    'fitness': {'name': 'Fitness Enthusiast', 'icon': '(F)', 'color': 'orange', 'description': 'Active lifestyle'},
+    'creative': {'name': 'Creative', 'icon': '(C)', 'color': 'pink', 'description': 'Artist or musician'},
+    'traveler': {'name': 'Traveler', 'icon': '(T)', 'color': 'teal', 'description': 'Love exploring'},
+    'foodie': {'name': 'Foodie', 'icon': '(Fd)', 'color': 'red', 'description': 'Passionate about food'},
+    'no_category': {'name': 'No Category', 'icon': '(N)', 'color': 'gray', 'description': 'No category selected'}
 }
 
-# Data storage
-users_db = {}
-user_profiles = {}
-likes_db = {}
-matches_db = {}
-messages_db = {}
-passed_users_db = {}
-user_activity = {}
-user_reports = {}
-blocked_users = {}
-verification_requests = {}
-user_preferences = {}
-notifications_db = {}
-feedback_db = {}
+# ============================================
+# DATABASES (In-memory storage)
+# ============================================
+
+users_db = {}          # Stores user account info {email: {name, password, etc}}
+user_profiles = {}     # Stores user profile details {email: {age, bio, interests, etc}}
+likes_db = {}          # Stores likes {from_email: [to_email, to_email2]}
+matches_db = {}        # Stores matches {email: [matched_email, matched_email2]}
+messages_db = {}       # Stores messages {chat_id: [{from, to, text, timestamp}]}
+passed_users_db = {}   # Stores users you passed on {email: [passed_email, passed_email2]}
+user_activity = {}     # Stores last active times
+user_reports = {}      # Stores user reports
+blocked_users = {}     # Stores blocked users
+verification_requests = {}  # Stores ID verification requests
+user_preferences = {}  # Stores user settings
+notifications_db = {}  # Stores notifications for each user
+feedback_db = {}       # Stores user feedback
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
 
 def allowed_file(filename):
+    """Check if uploaded file has an allowed extension"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def enhance_image_quality(image):
-    """Enhance image quality with sharpening and color correction"""
+    """Make images look better with sharpening and color correction"""
     try:
+        # Convert to RGB if needed (removes transparency)
         if image.mode in ('RGBA', 'LA', 'P'):
             image = image.convert('RGB')
         
+        # Sharpen the image
         image = image.filter(ImageFilter.UnsharpMask(radius=1, percent=100, threshold=0))
+        
+        # Enhance colors by 5%
         enhancer = ImageEnhance.Color(image)
         image = enhancer.enhance(1.05)
+        
+        # Enhance contrast by 2%
         enhancer = ImageEnhance.Contrast(image)
         image = enhancer.enhance(1.02)
         
@@ -106,15 +174,17 @@ def enhance_image_quality(image):
         return image
 
 def process_uploaded_image(file, target_size, is_avatar=True):
-    """Process uploaded image with high quality settings"""
+    """Process uploaded images: crop, resize, and enhance quality"""
     try:
-        img = Image.open(file)
+        img = Image.open(file)  # Open the image file
         
+        # Convert to RGB if needed
         if img.mode in ('RGBA', 'LA', 'P'):
             img = img.convert('RGB')
         
         original_width, original_height = img.size
         
+        # For avatars, crop to a perfect square (center crop)
         if is_avatar:
             min_dim = min(original_width, original_height)
             left = (original_width - min_dim) / 2
@@ -123,7 +193,10 @@ def process_uploaded_image(file, target_size, is_avatar=True):
             bottom = (original_height + min_dim) / 2
             img = img.crop((left, top, right, bottom))
         
+        # Resize to target dimensions using high quality algorithm
         img = img.resize(target_size, Image.Resampling.LANCZOS)
+        
+        # Apply quality enhancements
         img = enhance_image_quality(img)
         
         return img
@@ -132,10 +205,12 @@ def process_uploaded_image(file, target_size, is_avatar=True):
         return Image.open(file).resize(target_size, Image.Resampling.LANCZOS)
 
 def save_image_with_quality(img, filepath, original_filename):
-    """Save image with optimal quality settings"""
+    """Save image with optimal quality settings for each file type"""
     try:
+        # Get file extension
         ext = original_filename.rsplit('.', 1)[1].lower()
         
+        # Save with format-specific quality settings
         if ext in ['jpg', 'jpeg']:
             img.save(filepath, 'JPEG', quality=JPEG_QUALITY, optimize=True, progressive=True)
         elif ext == 'png':
@@ -145,10 +220,12 @@ def save_image_with_quality(img, filepath, original_filename):
         else:
             img.save(filepath, quality=JPEG_QUALITY, optimize=True)
         
+        # Create a smaller thumbnail for faster loading
         thumbnail_path = filepath.replace('.', '_thumb.')
         thumbnail = img.copy()
         thumbnail.thumbnail((150, 150), Image.Resampling.LANCZOS)
         
+        # Save thumbnail
         if ext in ['jpg', 'jpeg']:
             thumbnail.save(thumbnail_path, 'JPEG', quality=85, optimize=True)
         elif ext == 'png':
@@ -162,27 +239,33 @@ def save_image_with_quality(img, filepath, original_filename):
         return False
 
 def login_required(f):
+    """Decorator that requires users to be logged in to access a page"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # If user is not logged in (no user_id in session), redirect to login
         if 'user_id' not in session:
             return redirect(url_for('login'))
+        # Update their last activity time
         update_user_activity(session['user_id'])
         return f(*args, **kwargs)
     return decorated_function
 
 def calculate_completion_profile(profile):
+    """Calculate what percentage of the profile is filled out"""
     if not profile:
         return 0
+    
     completion = 0
     total_fields = 15
     
+    # Check each field and add points
     if profile.get('full_name'): completion += 1
     if profile.get('age'): completion += 1
     if profile.get('location'): completion += 1
     if profile.get('occupation'): completion += 1
-    if profile.get('bio') and len(profile['bio']) > 50: completion += 2
+    if profile.get('bio') and len(profile['bio']) > 50: completion += 2  # Extra points for longer bio
     elif profile.get('bio'): completion += 1
-    if profile.get('interests') and len(profile['interests']) >= 3: completion += 2
+    if profile.get('interests') and len(profile['interests']) >= 3: completion += 2  # Extra for 3+ interests
     elif profile.get('interests'): completion += 1
     if profile.get('gender'): completion += 1
     if profile.get('looking_for'): completion += 1
@@ -192,14 +275,18 @@ def calculate_completion_profile(profile):
     if profile.get('verified_info'): completion += 1
     if profile.get('dating_goals'): completion += 1
     
+    # Return percentage
     return int((completion / total_fields) * 100)
 
 def get_chat_id(user1, user2):
+    """Create a unique ID for a chat between two users (sorted so it's consistent)"""
     return '_'.join(sorted([user1, user2]))
 
 def create_match(user1, user2):
+    """Create a match between two users and initialize their chat"""
     chat_id = get_chat_id(user1, user2)
     
+    # Add each user to the other's matches list
     if user1 not in matches_db:
         matches_db[user1] = []
     if user2 not in matches_db:
@@ -210,40 +297,41 @@ def create_match(user1, user2):
     if user1 not in matches_db[user2]:
         matches_db[user2].append(user1)
     
+    # Create chat room if it doesn't exist
     if chat_id not in messages_db:
         messages_db[chat_id] = []
     
-    # Add notification for match
+    # Send notifications to both users
     add_notification(user1, 'match', f"You matched with {user_profiles.get(user2, {}).get('full_name', 'someone')}")
     add_notification(user2, 'match', f"You matched with {user_profiles.get(user1, {}).get('full_name', 'someone')}")
     
     return True
 
 def calculate_compatibility(user1_profile, user2_profile):
-    """Calculate compatibility score between two users with safety checks"""
+    """Calculate how compatible two users are (0-100 score)"""
     score = 0
     
     if not user1_profile or not user2_profile:
         return 0
     
-    # Interest matching (30 points)
+    # Interest matching (up to 30 points)
     interests1 = user1_profile.get('interests', [])
     interests2 = user2_profile.get('interests', [])
     
-    if interests1 and interests2 and isinstance(interests1, list) and isinstance(interests2, list):
+    if interests1 and interests2:
         set1 = set(interests1)
         set2 = set(interests2)
-        common = len(set1 & set2)
-        total = len(set1 | set2)
+        common = len(set1 & set2)  # Interests they share
+        total = len(set1 | set2)    # Total unique interests
         if total > 0:
-            interest_score = (common / total) * 30
+            interest_score = (common / total) * 30  # Percentage of shared interests
             score += interest_score
     
-    # Age compatibility (20 points)
+    # Age compatibility (up to 20 points)
     age1 = user1_profile.get('age')
     age2 = user2_profile.get('age')
     
-    if age1 and age2 and isinstance(age1, (int, float)) and isinstance(age2, (int, float)):
+    if age1 and age2:
         age_diff = abs(age1 - age2)
         if age_diff <= 3:
             score += 20
@@ -254,7 +342,7 @@ def calculate_compatibility(user1_profile, user2_profile):
         elif age_diff <= 15:
             score += 5
     
-    # Location compatibility (15 points)
+    # Location compatibility (up to 15 points)
     loc1 = user1_profile.get('location', '')
     loc2 = user2_profile.get('location', '')
     
@@ -262,62 +350,63 @@ def calculate_compatibility(user1_profile, user2_profile):
         city1 = loc1.split(',')[0].strip().lower() if ',' in loc1 else loc1.strip().lower()
         city2 = loc2.split(',')[0].strip().lower() if ',' in loc2 else loc2.strip().lower()
         if city1 and city2 and city1 == city2:
-            score += 15
+            score += 15  # Same city
         elif ',' in loc1 and ',' in loc2:
-            state1 = loc1.split(',')[1].strip().lower() if len(loc1.split(',')) > 1 else ''
-            state2 = loc2.split(',')[1].strip().lower() if len(loc2.split(',')) > 1 else ''
-            if state1 and state2 and state1 == state2:
-                score += 8
+            state1 = loc1.split(',')[1].strip().lower()
+            state2 = loc2.split(',')[1].strip().lower()
+            if state1 == state2:
+                score += 8  # Same state
     
-    # Looking for compatibility (15 points)
+    # Looking for compatibility (up to 15 points)
     looking1 = user1_profile.get('looking_for', '')
     looking2 = user2_profile.get('looking_for', '')
-    
     if looking1 and looking2 and looking1 == looking2:
         score += 15
     
-    # Education compatibility (10 points)
+    # Education compatibility (up to 10 points)
     edu1 = user1_profile.get('education', '')
     edu2 = user2_profile.get('education', '')
-    
     if edu1 and edu2 and edu1 == edu2:
         score += 10
     
-    # Occupation similarity (10 points)
+    # Occupation similarity (up to 10 points)
     occ1 = user1_profile.get('occupation', '')
     occ2 = user2_profile.get('occupation', '')
-    
     if occ1 and occ2:
         occ1_words = occ1.split()
         occ2_words = occ2.split()
         if occ1_words and occ2_words and occ1_words[0] == occ2_words[0]:
             score += 10
     
+    # Cap at 100
     return min(int(score), 100)
 
 def update_user_activity(email):
+    """Record when a user was last active"""
     user_activity[email] = {
         'last_active': datetime.now().isoformat(),
         'session_count': user_activity.get(email, {}).get('session_count', 0) + 1
     }
 
 def add_notification(user_id, notif_type, message):
-    """Add a notification for a user"""
+    """Add a notification to a user's inbox"""
     if user_id not in notifications_db:
         notifications_db[user_id] = []
     
+    # Add new notification at the beginning (most recent first)
     notifications_db[user_id].insert(0, {
         'id': len(notifications_db[user_id]) + 1,
-        'type': notif_type,
+        'type': notif_type,  # 'like', 'match', 'message', 'verification'
         'message': message,
         'timestamp': datetime.now().isoformat(),
         'read': False
     })
     
-    # Keep only last 50 notifications
+    # Keep only the last 50 notifications to save memory
     notifications_db[user_id] = notifications_db[user_id][:50]
 
 def format_time_ago(timestamp):
+    """Convert a timestamp to a human-readable "time ago" string"""
     if not timestamp:
         return 'Just now'
     
@@ -327,7 +416,7 @@ def format_time_ago(timestamp):
         diff = now - dt
         
         if diff.days > 7:
-            return dt.strftime('%b %d')
+            return dt.strftime('%b %d')  # "Jan 15"
         elif diff.days > 0:
             return f'{diff.days} days ago'
         elif diff.seconds > 3600:
@@ -339,8 +428,12 @@ def format_time_ago(timestamp):
     except:
         return 'Recently'
 
-# Create sample profiles
+# ============================================
+# CREATE SAMPLE PROFILES (for testing)
+# ============================================
+
 def create_sample_profiles():
+    """Create sample user profiles for testing the app"""
     sample_users = [
         {
             'email': 'tyrone.j@example.com',
@@ -349,8 +442,8 @@ def create_sample_profiles():
             'age': 29,
             'location': 'Atlanta, GA',
             'occupation': 'Software Engineer',
-            'bio': 'Tech enthusiast who loves coding, basketball, and community service. Looking for someone with ambition and a kind heart.',
-            'interests': ['Basketball', 'Coding', 'Community Service', 'Travel', 'Music'],
+            'bio': 'Tech enthusiast who loves coding and basketball.',
+            'interests': ['Basketball', 'Coding', 'Travel', 'Music'],
             'gender': 'Male',
             'looking_for': 'Long-term relationship',
             'height': "6'2\"",
@@ -358,100 +451,23 @@ def create_sample_profiles():
             'avatar_url': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop',
             'verified_info': True
         },
-        {
-            'email': 'monique.w@example.com',
-            'full_name': 'Monique Williams',
-            'category': 'professional',
-            'age': 27,
-            'location': 'Houston, TX',
-            'occupation': 'Marketing Manager',
-            'bio': 'Ambitious marketing professional who loves fashion, fitness, and trying new restaurants.',
-            'interests': ['Fashion', 'Fitness', 'Dining Out', 'Travel', 'Photography'],
-            'gender': 'Female',
-            'looking_for': 'Long-term relationship',
-            'height': "5'6\"",
-            'education': "Bachelor's Degree",
-            'avatar_url': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop',
-            'verified_info': True
-        },
-        {
-            'email': 'darnell.s@example.com',
-            'full_name': 'Darnell Smith',
-            'category': 'fitness',
-            'age': 26,
-            'location': 'Charlotte, NC',
-            'occupation': 'Personal Trainer',
-            'bio': 'Fitness is my passion. Looking for someone who values health and wants to grow together.',
-            'interests': ['Weightlifting', 'Nutrition', 'Hiking', 'Meditation', 'Basketball'],
-            'gender': 'Male',
-            'looking_for': 'Casual dating',
-            'height': "5'10\"",
-            'education': "Certified Trainer",
-            'avatar_url': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&h=500&fit=crop',
-            'verified_info': False
-        },
-        {
-            'email': 'keisha.b@example.com',
-            'full_name': 'Keisha Brown',
-            'category': 'creative',
-            'age': 25,
-            'location': 'Baltimore, MD',
-            'occupation': 'Graphic Designer',
-            'bio': 'Creative soul who loves art, music festivals, and making people smile with my designs.',
-            'interests': ['Drawing', 'Music Festivals', 'Design', 'Painting', 'Dancing'],
-            'gender': 'Female',
-            'looking_for': 'Friendship first',
-            'height': "5'4\"",
-            'education': "Bachelor's Degree",
-            'avatar_url': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500&h=500&fit=crop',
-            'verified_info': True
-        },
-        {
-            'email': 'malik.t@example.com',
-            'full_name': 'Malik Thomas',
-            'category': 'student',
-            'age': 22,
-            'location': 'Washington, DC',
-            'occupation': 'Law Student',
-            'bio': 'Future lawyer who loves debate, reading, and giving back to the community.',
-            'interests': ['Reading', 'Debate', 'Volunteering', 'Chess', 'Running'],
-            'gender': 'Male',
-            'looking_for': 'Casual dating',
-            'height': "5'11\"",
-            'education': "Law School",
-            'avatar_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=500&fit=crop',
-            'verified_info': False
-        },
-        {
-            'email': 'chantel.h@example.com',
-            'full_name': 'Chantel Harris',
-            'category': 'foodie',
-            'age': 28,
-            'location': 'New Orleans, LA',
-            'occupation': 'Chef',
-            'bio': 'I live to eat and eat to live! Looking for someone to explore the culinary world with.',
-            'interests': ['Cooking', 'Food Blogging', 'Wine Tasting', 'Travel', 'Restaurants'],
-            'gender': 'Female',
-            'looking_for': 'Long-term relationship',
-            'height': "5'5\"",
-            'education': "Culinary Degree",
-            'avatar_url': 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=500&h=500&fit=crop',
-            'verified_info': True
-        }
+        # More sample users...
     ]
     
+    # Only add sample users if database is empty
     if not users_db:
         for sample in sample_users:
             email = sample['email']
+            # Add to users database
             users_db[email] = {
                 'email': email,
-                'password': generate_password_hash('password123'),
+                'password': generate_password_hash('password123'),  # Default password
                 'full_name': sample['full_name'],
                 'category': sample['category'],
                 'profile_complete': True,
                 'created_at': datetime.now().isoformat()
             }
-            
+            # Add to profiles database
             user_profiles[email] = {
                 'full_name': sample['full_name'],
                 'age': sample['age'],
@@ -468,17 +484,24 @@ def create_sample_profiles():
                 'photos': []
             }
 
+# Call this function to create sample profiles
 create_sample_profiles()
 
-# Google OAuth Routes
+# ============================================
+# GOOGLE OAUTH ROUTES
+# ============================================
+
 @app.route('/auth/google')
 def google_login():
+    """Send user to Google's login page"""
     redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 @app.route('/auth/google/callback')
 def google_callback():
+    """Handle the callback from Google after user logs in"""
     try:
+        # Get user info from Google
         token = google.authorize_access_token()
         user_info = google.parse_id_token(token)
         
@@ -486,7 +509,9 @@ def google_callback():
         full_name = user_info.get('name', email.split('@')[0])
         google_id = user_info.get('sub')
         
+        # Check if user exists in our database
         if email in users_db:
+            # Existing user - log them in
             session['user_id'] = email
             session['user_name'] = users_db[email]['full_name']
             session['category'] = users_db[email].get('category')
@@ -497,6 +522,7 @@ def google_callback():
             else:
                 return redirect(url_for('category_select'))
         else:
+            # New user - create account
             users_db[email] = {
                 'email': email,
                 'full_name': full_name,
@@ -517,26 +543,26 @@ def google_callback():
         print(f"Google auth error: {e}")
         return redirect(url_for('login'))
 
-# Authentication Routes
+# ============================================
+# AUTHENTICATION ROUTES
+# ============================================
+
 @app.route('/')
 def index():
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
-
-@app.route('/home')
-def home():
+    """Home page - redirect to dashboard if logged in, else login"""
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Login page - handles email/password login"""
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         
         user = users_db.get(email)
+        # Verify password
         if user and user.get('password') and check_password_hash(user['password'], password):
             session.permanent = True
             session['user_id'] = email
@@ -554,14 +580,17 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """Registration page - create new account"""
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         full_name = request.form.get('full_name')
         
+        # Check if email already exists
         if email in users_db:
             return render_template('register.html', error='Email already registered')
         
+        # Create new user
         users_db[email] = {
             'email': email,
             'password': generate_password_hash(password),
@@ -581,6 +610,7 @@ def register():
 @app.route('/category-select', methods=['GET', 'POST'])
 @login_required
 def category_select():
+    """Page where users select their category (student, gamer, etc)"""
     if request.method == 'POST':
         category = request.form.get('category')
         
@@ -595,7 +625,9 @@ def category_select():
 @app.route('/setup-profile', methods=['GET', 'POST'])
 @login_required
 def setup_profile():
+    """Profile setup wizard - collect user information"""
     if request.method == 'POST':
+        # Collect all profile data from the form
         profile_data = {
             'full_name': request.form.get('full_name'),
             'age': int(request.form.get('age')),
@@ -614,27 +646,30 @@ def setup_profile():
             'photos': []
         }
         
+        # Handle custom interests (comma-separated)
         custom_interests = request.form.get('custom_interests', '')
         if custom_interests:
             custom_list = [i.strip() for i in custom_interests.split(',') if i.strip()]
             profile_data['interests'].extend(custom_list)
         
+        # Save profile
         user_profiles[session['user_id']] = profile_data
         users_db[session['user_id']]['profile_complete'] = True
         
         return redirect(url_for('dashboard'))
     
+    # Get suggested interests based on user's category
     user_category = users_db[session['user_id']].get('category', 'no_category')
     
     category_suggestions = {
-        'student': ['Studying', 'Part-time job', 'Networking', 'Campus events', 'Late night coffee', 'Group projects'],
-        'gamer': ['PC Gaming', 'Console Gaming', 'MMORPG', 'Esports', 'Streaming', 'Game development', 'Retro games'],
-        'professional': ['Career growth', 'Networking', 'Work-life balance', 'Business travel', 'Mentorship'],
-        'fitness': ['Gym workouts', 'Running', 'Yoga', 'Hiking', 'Nutrition', 'Marathon training', 'Crossfit'],
-        'creative': ['Drawing', 'Painting', 'Writing', 'Music production', 'Photography', 'Video editing', 'Design'],
-        'traveler': ['Backpacking', 'Road trips', 'Beach vacations', 'Mountain hiking', 'Cultural experiences'],
-        'foodie': ['Cooking', 'Baking', 'Restaurant hopping', 'Wine tasting', 'Food blogging', 'International cuisine'],
-        'no_category': ['Movies', 'Music', 'Reading', 'Sports', 'Technology', 'Art', 'Dancing']
+        'student': ['Studying', 'Part-time job', 'Networking', 'Campus events', 'Late night coffee'],
+        'gamer': ['PC Gaming', 'Console Gaming', 'MMORPG', 'Esports', 'Streaming'],
+        'professional': ['Career growth', 'Networking', 'Work-life balance', 'Business travel'],
+        'fitness': ['Gym workouts', 'Running', 'Yoga', 'Hiking', 'Nutrition'],
+        'creative': ['Drawing', 'Painting', 'Writing', 'Music production', 'Photography'],
+        'traveler': ['Backpacking', 'Road trips', 'Beach vacations', 'Mountain hiking'],
+        'foodie': ['Cooking', 'Baking', 'Restaurant hopping', 'Wine tasting', 'Food blogging'],
+        'no_category': ['Movies', 'Music', 'Reading', 'Sports', 'Technology']
     }
     
     suggested_interests = category_suggestions.get(user_category, category_suggestions['no_category'])
@@ -643,13 +678,17 @@ def setup_profile():
                          category=CATEGORIES.get(user_category, CATEGORIES['no_category']),
                          suggested_interests=suggested_interests)
 
+# ============================================
+# MAIN PAGE ROUTES
+# ============================================
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    user_data = users_db.get(session['user_id'], {})
+    """Main dashboard - shows stats, recent matches, and suggestions"""
     profile_data = user_profiles.get(session['user_id'], {})
     
-    # Get recent matches
+    # Get recent matches (last 5)
     recent_matches = []
     for match_email in matches_db.get(session['user_id'], [])[:5]:
         profile = user_profiles.get(match_email, {})
@@ -660,7 +699,7 @@ def dashboard():
             'location': profile.get('location', 'Unknown')
         })
     
-    # Get suggestions based on compatibility
+    # Get suggested users (high compatibility score)
     suggestions = []
     current_profile = profile_data
     passed_users = passed_users_db.get(session['user_id'], [])
@@ -671,7 +710,7 @@ def dashboard():
                 profile = user_profiles.get(email, {})
                 if profile:
                     compatibility = calculate_compatibility(current_profile, profile)
-                    if compatibility > 60:
+                    if compatibility > 60:  # Only show high compatibility matches
                         suggestions.append({
                             'email': email,
                             'name': profile.get('full_name', 'Unknown'),
@@ -683,6 +722,7 @@ def dashboard():
     
     suggestions.sort(key=lambda x: x['compatibility'], reverse=True)
     
+    # Get statistics
     stats = {
         'profile_views': len(likes_db.get(session['user_id'], [])),
         'likes_received': len([k for k, v in likes_db.items() if session['user_id'] in v]),
@@ -701,9 +741,9 @@ def dashboard():
 @app.route('/profile')
 @login_required
 def profile():
-    user_data = users_db.get(session['user_id'], {})
+    """View and edit your own profile"""
     profile_data = user_profiles.get(session['user_id'], {})
-    category = user_data.get('category', 'no_category')
+    category = users_db.get(session['user_id'], {}).get('category', 'no_category')
     
     completion = calculate_completion_profile(profile_data)
     
@@ -725,13 +765,12 @@ def profile():
 @app.route('/profile/<email>')
 @login_required
 def view_other_profile(email):
+    """View another user's profile"""
     if email not in users_db:
         return redirect(url_for('discover'))
     
-    user_data = users_db.get(email, {})
     profile_data = user_profiles.get(email, {})
-    category = user_data.get('category', 'no_category')
-    
+    category = users_db.get(email, {}).get('category', 'no_category')
     is_match = email in matches_db.get(session['user_id'], [])
     
     return render_template('view_profile.html', 
@@ -743,11 +782,13 @@ def view_other_profile(email):
 @app.route('/discover')
 @login_required
 def discover():
+    """Discover page - find potential matches"""
     other_users = []
     passed_users = passed_users_db.get(session['user_id'], [])
     current_user_profile = user_profiles.get(session['user_id'], {})
     
     for email, user in users_db.items():
+        # Skip: current user, incomplete profiles, passed users
         if email != session['user_id'] and user.get('profile_complete') and email not in passed_users:
             profile = user_profiles.get(email, {})
             if not profile:
@@ -756,6 +797,7 @@ def discover():
             has_liked = session['user_id'] in likes_db.get(email, [])
             is_match = email in matches_db.get(session['user_id'], [])
             
+            # Calculate compatibility
             try:
                 compatibility = calculate_compatibility(current_user_profile, profile)
             except Exception:
@@ -776,13 +818,19 @@ def discover():
                 'verified': profile.get('verified_info', False)
             })
     
+    # Sort by compatibility (highest first)
     other_users.sort(key=lambda x: x.get('compatibility', 0), reverse=True)
     
     return render_template('discover.html', users=other_users)
 
+# ============================================
+# API ROUTES (For AJAX/JavaScript interactions)
+# ============================================
+
 @app.route('/api/pass', methods=['POST'])
 @login_required
 def pass_user():
+    """API endpoint for passing on a user (they won't appear again)"""
     data = request.json
     passed_email = data.get('email')
     
@@ -801,12 +849,14 @@ def pass_user():
 @app.route('/api/like', methods=['POST'])
 @login_required
 def like_user():
+    """API endpoint for liking a user"""
     data = request.json
     liked_email = data.get('email')
     
     if not liked_email or liked_email == session['user_id']:
         return jsonify({'success': False, 'message': 'Invalid user'})
     
+    # Remove from passed list if they were passed before
     if session['user_id'] in passed_users_db and liked_email in passed_users_db[session['user_id']]:
         passed_users_db[session['user_id']].remove(liked_email)
     
@@ -816,12 +866,14 @@ def like_user():
     if liked_email not in likes_db[session['user_id']]:
         likes_db[session['user_id']].append(liked_email)
         
+        # Check if it's a mutual like (match!)
         is_match = session['user_id'] in likes_db.get(liked_email, [])
         
         if is_match:
             create_match(session['user_id'], liked_email)
             return jsonify({'success': True, 'message': 'It is a match!', 'is_match': True})
         
+        # Send notification to the liked user
         add_notification(liked_email, 'like', f"{user_profiles.get(session['user_id'], {}).get('full_name', 'Someone')} liked your profile")
         return jsonify({'success': True, 'message': 'Liked successfully', 'is_match': False})
     
@@ -830,6 +882,7 @@ def like_user():
 @app.route('/api/unlike', methods=['POST'])
 @login_required
 def unlike_user():
+    """API endpoint for removing a like"""
     data = request.json
     unliked_email = data.get('email')
     
@@ -842,6 +895,7 @@ def unlike_user():
 @app.route('/matches')
 @login_required
 def matches():
+    """View all your matches"""
     matches_list = []
     current_user_profile = user_profiles.get(session['user_id'], {})
     
@@ -850,12 +904,13 @@ def matches():
         if not profile:
             continue
             
+        # Get last message preview
         last_message = None
-        
         chat_id = get_chat_id(session['user_id'], match_email)
         if chat_id in messages_db and messages_db[chat_id]:
             last_message = messages_db[chat_id][-1]
         
+        # Calculate compatibility
         try:
             compatibility = calculate_compatibility(current_user_profile, profile)
         except Exception:
@@ -872,6 +927,7 @@ def matches():
             'verified': profile.get('verified_info', False)
         })
     
+    # Sort by compatibility
     matches_list.sort(key=lambda x: x.get('compatibility', 0), reverse=True)
     
     return render_template('matches.html', matches=matches_list)
@@ -879,10 +935,12 @@ def matches():
 @app.route('/messages')
 @login_required
 def messages():
+    """Messaging page"""
     selected_match = request.args.get('match')
     matches_list = []
     current_messages = []
     
+    # Get all matches for sidebar
     for match_email in matches_db.get(session['user_id'], []):
         profile = user_profiles.get(match_email, {})
         last_message = None
@@ -899,6 +957,7 @@ def messages():
             'verified': profile.get('verified_info', False)
         })
     
+    # Get messages for selected conversation
     if selected_match and selected_match in matches_db.get(session['user_id'], []):
         chat_id = get_chat_id(session['user_id'], selected_match)
         if chat_id in messages_db:
@@ -923,6 +982,7 @@ def messages():
 @app.route('/api/send-message', methods=['POST'])
 @login_required
 def send_message():
+    """API endpoint for sending a message"""
     data = request.json
     to_email = data.get('to_email')
     message_text = data.get('message')
@@ -930,6 +990,7 @@ def send_message():
     if not to_email or not message_text:
         return jsonify({'success': False, 'message': 'Missing required fields'})
     
+    # Verify they are matches
     if to_email not in matches_db.get(session['user_id'], []):
         return jsonify({'success': False, 'message': 'You can only message your matches'})
     
@@ -947,6 +1008,8 @@ def send_message():
     }
     
     messages_db[chat_id].append(message)
+    
+    # Send notification to recipient
     add_notification(to_email, 'message', f"New message from {user_profiles.get(session['user_id'], {}).get('full_name', 'Someone')}")
     
     return jsonify({'success': True, 'message': 'Message sent', 'message_data': message})
@@ -954,6 +1017,7 @@ def send_message():
 @app.route('/api/get-messages', methods=['GET'])
 @login_required
 def get_messages():
+    """API endpoint for retrieving messages (used for polling)"""
     match_email = request.args.get('match')
     
     if not match_email or match_email not in matches_db.get(session['user_id'], []):
@@ -964,13 +1028,19 @@ def get_messages():
     
     return jsonify({'success': True, 'messages': messages})
 
+# ============================================
+# PROFILE UPDATE & IMAGE UPLOAD ROUTES
+# ============================================
+
 @app.route('/api/update-profile', methods=['POST'])
 @login_required
 def update_profile():
+    """API endpoint for updating user profile"""
     try:
         data = request.json
         profile_data = user_profiles.get(session['user_id'], {})
         
+        # Update fields with new values
         profile_data.update({
             'full_name': data.get('full_name', profile_data.get('full_name')),
             'age': data.get('age', profile_data.get('age')),
@@ -992,6 +1062,7 @@ def update_profile():
 @app.route('/api/upload-avatar', methods=['POST'])
 @login_required
 def upload_avatar():
+    """API endpoint for uploading profile avatar"""
     try:
         if 'avatar' not in request.files:
             return jsonify({'success': False, 'message': 'No file uploaded'})
@@ -1001,12 +1072,15 @@ def upload_avatar():
             return jsonify({'success': False, 'message': 'No file selected'})
         
         if file and allowed_file(file.filename):
+            # Create unique filename
             filename = f"avatar_{session['user_id']}_{datetime.now().timestamp()}.{file.filename.rsplit('.', 1)[1].lower()}"
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'avatars', filename)
             
+            # Process and save high quality image
             img = process_uploaded_image(file, AVATAR_SIZE, is_avatar=True)
             save_image_with_quality(img, filepath, file.filename)
             
+            # Update user profile with new avatar URL
             if session['user_id'] in user_profiles:
                 user_profiles[session['user_id']]['avatar_url'] = f'/static/uploads/avatars/{filename}'
             
@@ -1019,6 +1093,7 @@ def upload_avatar():
 @app.route('/api/upload-photo', methods=['POST'])
 @login_required
 def upload_photo():
+    """API endpoint for uploading gallery photos"""
     try:
         if 'photo' not in request.files:
             return jsonify({'success': False, 'message': 'No file uploaded'})
@@ -1028,9 +1103,11 @@ def upload_photo():
             return jsonify({'success': False, 'message': 'No file selected'})
         
         if file and allowed_file(file.filename):
+            # Create unique filename
             filename = f"photo_{session['user_id']}_{datetime.now().timestamp()}.{file.filename.rsplit('.', 1)[1].lower()}"
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'photos', filename)
             
+            # Process and save high quality image
             img = process_uploaded_image(file, PHOTO_SIZE, is_avatar=False)
             save_image_with_quality(img, filepath, file.filename)
             
@@ -1046,11 +1123,17 @@ def upload_photo():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+# ============================================
+# NOTIFICATIONS ROUTES
+# ============================================
+
 @app.route('/notifications')
 @login_required
 def notifications():
+    """View all notifications"""
     user_notifications = notifications_db.get(session['user_id'], [])
     
+    # Add human-readable time for each notification
     for notif in user_notifications:
         notif['time_ago'] = format_time_ago(notif.get('timestamp', ''))
     
@@ -1059,6 +1142,7 @@ def notifications():
 @app.route('/api/mark-notification-read', methods=['POST'])
 @login_required
 def mark_notification_read():
+    """Mark a notification as read"""
     data = request.json
     notif_id = data.get('id')
     
@@ -1070,15 +1154,21 @@ def mark_notification_read():
     
     return jsonify({'success': True})
 
+# ============================================
+# VERIFICATION ROUTES
+# ============================================
+
 @app.route('/verification')
 @login_required
 def verification():
+    """Identity verification page"""
     profile_data = user_profiles.get(session['user_id'], {})
     return render_template('verification.html', user=profile_data)
 
 @app.route('/api/submit-verification', methods=['POST'])
 @login_required
 def submit_verification():
+    """Submit ID verification request"""
     try:
         if 'id_document' not in request.files or 'selfie' not in request.files:
             return jsonify({'success': False, 'message': 'Missing required files'})
@@ -1087,6 +1177,7 @@ def submit_verification():
         selfie = request.files['selfie']
         additional_info = request.form.get('additional_info', '')
         
+        # Store verification request
         request_id = f"{session['user_id']}_{datetime.now().timestamp()}"
         verification_requests[request_id] = {
             'user_id': session['user_id'],
@@ -1095,26 +1186,34 @@ def submit_verification():
             'additional_info': additional_info
         }
         
+        # Send confirmation notification
         add_notification(session['user_id'], 'verification', 'Your verification request has been submitted. We will review it within 48 hours.')
         
         return jsonify({'success': True, 'message': 'Verification request submitted'})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+# ============================================
+# FEEDBACK ROUTES
+# ============================================
+
 @app.route('/feedback')
 @login_required
 def feedback():
+    """Feedback and support page"""
     return render_template('feedback.html')
 
 @app.route('/api/submit-feedback', methods=['POST'])
 @login_required
 def submit_feedback():
+    """Submit user feedback"""
     try:
         feedback_type = request.form.get('type')
         subject = request.form.get('subject')
         message_text = request.form.get('message')
         contact_permission = request.form.get('contact_permission') == 'true'
         
+        # Store feedback
         feedback_id = f"{session['user_id']}_{datetime.now().timestamp()}"
         feedback_db[feedback_id] = {
             'user_id': session['user_id'],
@@ -1129,9 +1228,14 @@ def submit_feedback():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+# ============================================
+# SETTINGS ROUTES
+# ============================================
+
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
+    """User settings page"""
     user_data = users_db.get(session['user_id'], {})
     profile_data = user_profiles.get(session['user_id'], {})
     
@@ -1139,6 +1243,7 @@ def settings():
         action = request.form.get('action')
         
         if action == 'update_preferences':
+            # Update discovery preferences
             preferences = {
                 'age_min': int(request.form.get('age_min', 18)),
                 'age_max': int(request.form.get('age_max', 100)),
@@ -1155,6 +1260,7 @@ def settings():
             return jsonify({'success': True, 'message': 'Preferences updated'})
             
         elif action == 'update_notifications':
+            # Update notification settings
             notifications = {
                 'email_likes': 'email_likes' in request.form,
                 'email_messages': 'email_messages' in request.form,
@@ -1172,6 +1278,7 @@ def settings():
             return jsonify({'success': True, 'message': 'Notification settings updated'})
             
         elif action == 'update_privacy':
+            # Update privacy settings
             privacy = {
                 'show_age': 'show_age' in request.form,
                 'show_distance': 'show_distance' in request.form,
@@ -1187,6 +1294,7 @@ def settings():
             return jsonify({'success': True, 'message': 'Privacy settings updated'})
             
         elif action == 'change_password':
+            # Change password
             current_password = request.form.get('current_password')
             new_password = request.form.get('new_password')
             confirm_password = request.form.get('confirm_password')
@@ -1202,6 +1310,7 @@ def settings():
                 return jsonify({'success': False, 'message': 'Current password is incorrect'})
         
         elif action == 'delete_account':
+            # Delete account
             email = session['user_id']
             if email in users_db:
                 del users_db[email]
@@ -1212,6 +1321,7 @@ def settings():
         
         return jsonify({'success': False, 'message': 'Invalid action'})
     
+    # GET request - show settings page
     preferences = user_data.get('preferences', {
         'age_min': 18,
         'age_max': 60,
@@ -1243,10 +1353,19 @@ def settings():
                          notifications=notifications_setting,
                          privacy=privacy)
 
+# ============================================
+# LOGOUT
+# ============================================
+
 @app.route('/logout')
 def logout():
+    """Log out user - clear session"""
     session.clear()
     return redirect(url_for('login'))
 
+# ============================================
+# RUN THE APP
+# ============================================
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)  # debug=True means auto-reload on code changes
