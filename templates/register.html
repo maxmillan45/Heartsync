@@ -17,6 +17,16 @@
         </div>
         {% endif %}
         
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{% if category == 'success' %}bg-green-100 border-green-400 text-green-700{% elif category == 'danger' %}bg-red-100 border-red-400 text-red-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border px-4 py-3 rounded-lg mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
         <!-- Google Sign Up Button -->
         <a href="{{ url_for('google_login') }}" 
            class="flex items-center justify-center space-x-3 w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-50 transition mb-4">
@@ -54,6 +64,12 @@
             <div>
                 <label class="block text-hs-800 font-medium mb-2">Password</label>
                 <input type="password" name="password" required 
+                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+            </div>
+            
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Confirm Password</label>
+                <input type="password" name="confirm_password" required 
                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
             </div>
             
