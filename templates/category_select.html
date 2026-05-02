@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Choose Your Category - Heartsync{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12">
+    <div class="bg-white rounded-2xl shadow-xl p-8 max-w-5xl w-full border border-hs-200">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-hs-900 mb-2">How would you describe yourself?</h1>
+            <p class="text-hs-600">Choose a category that best represents you</p>
+        </div>
+        
+        {% if error %}
+        <div class="bg-hs-100 border border-hs-300 text-hs-800 px-4 py-3 rounded-lg mb-4">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {% for key, category in categories.items() %}
+                <label class="category-card cursor-pointer">
+                    <input type="radio" name="category" value="{{ key }}" class="hidden category-radio">
+                    <div class="border-2 border-hs-200 rounded-xl p-4 text-center hover:border-hs-500 transition category-content">
+                        <div class="text-3xl mb-2 font-bold">{{ category.icon }}</div>
+                        <h3 class="font-semibold text-hs-800">{{ category.name }}</h3>
+                        <p class="text-xs text-hs-500 mt-1">{{ category.description }}</p>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-hs-600 text-white py-3 rounded-lg font-semibold hover:bg-hs-700 transition">
+                Continue to Profile Setup
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .category-radio:checked + .category-content {
+        border-color: var(--hs-500);
+        background-color: var(--hs-50);
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const radio = this.querySelector('.category-radio');
+            radio.checked = true;
+            
+            document.querySelectorAll('.category-content').forEach(content => {
+                content.classList.remove('border-hs-500', 'bg-hs-50');
+            });
+            this.querySelector('.category-content').classList.add('border-hs-500', 'bg-hs-50');
+        });
+    });
+</script>
+{% endblock %}

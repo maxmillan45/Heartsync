@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Discover - Heartsync{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
+    <h1 class="text-3xl font-bold text-hs-900 mb-6">Discover People</h1>
+    
+    {% if users and users|length > 0 %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for user in users %}
+        <div class="profile-card border border-hs-200 rounded-xl overflow-hidden hover:shadow-lg transition" data-email="{{ user.email }}">
+            <img src="{{ user.avatar_url }}" alt="{{ user.name }}" class="w-full h-48 object-cover">
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-semibold text-hs-900">{{ user.name }}</h3>
+                    <span class="text-hs-600 font-semibold">{{ user.age }}</span>
+                </div>
+                <p class="text-hs-600 text-sm mb-2">Location: {{ user.location }}</p>
+                <p class="text-hs-700 text-sm mb-3">{{ user.bio[:100] }}{% if user.bio|length > 100 %}...{% endif %}</p>
+                
+                {% if user.interests %}
+                <div class="flex flex-wrap gap-1 mb-3">
+                    {% for interest in user.interests %}
+                    <span class="text-xs bg-hs-100 text-hs-700 px-2 py-1 rounded-full">{{ interest }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="flex gap-2">
+                    {% if user.is_match %}
+                        <button class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm cursor-default" disabled>
+                            Matched
+                        </button>
+                        <a href="{{ url_for('messages') }}?match={{ user.email }}" 
+                           class="flex-1 bg-hs-600 text-white px-3 py-2 rounded-lg text-sm text-center hover:bg-hs-700 transition">
+                            Message
+                        </a>
+                    {% elif user.has_liked %}
+                        <button class="flex-1 bg-gray-400 text-white px-3 py-2 rounded-lg text-sm cursor-default" disabled>
+                            Liked
+                        </button>
+                        <button class="unlike-btn flex-1 border border-red-500 text-red-500 px-3 py-2 rounded-lg text-sm hover:bg-red-50 transition"
+                                data-email="{{ user.email }}">
+                            Unlike
+                        </button>
+                    {% else %}
+                        <button class="like-btn flex-1 bg-hs-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-hs-700 transition"
+                                data-email="{{ user.email }}">
+                            Like
+                        </button>
+                        <button class="pass-btn flex-1 border border-hs-600 text-hs-600 px-3 py-2 rounded-lg text-sm hover:bg-hs-50 transition"
+                                data-email="{{ user.email }}">
+                            Pass
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-hs-600 text-lg">No more profiles to show</p>
+        <p class="text-hs-500 text-sm mt-2">Check back later for new people</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Like button functionality
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const email = this.dataset.email;
+            const card = this.closest('.profile-card');
+            const originalText = this.textContent;
+            this.textContent = 'Liking...';
+            this.disabled = true;
+            
+            try {
+                const response = await fetch('/api/like', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.is_match) {
+                        alert('It is a match! You can now message each other.');
+                    }
+                    location.reload();
+                } else {
+                    alert(data.message);
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+                this.textContent = originalText;
+                this.disabled = false;
+            }
+        });
+    });
+    
+    // Unlike button functionality
+    document.querySelectorAll('.unlike-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const email = this.dataset.email;
+            
+            if (confirm('Remove your like?')) {
+                const originalText = this.textContent;
+                this.textContent = 'Removing...';
+                this.disabled = true;
+                
+                try {
+                    const response = await fetch('/api/unlike', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                        this.textContent = originalText;
+                        this.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }
+            }
+        });
+    });
+    
+    // Pass button - permanently removes the profile
+    document.querySelectorAll('.pass-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const email = this.dataset.email;
+            const card = this.closest('.profile-card');
+            
+            const originalText = this.textContent;
+            this.textContent = 'Passing...';
+            this.disabled = true;
+            
+            try {
+                const response = await fetch('/api/pass', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Animate and remove the card
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // Check if no more profiles
+                        if (document.querySelectorAll('.profile-card').length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                } else {
+                    alert(data.message);
+                    this.textContent = originalText;
+                    this.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+                this.textContent = originalText;
+                this.disabled = false;
+            }
+        });
+    });
+</script>
+{% endblock %}

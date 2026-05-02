@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback & Support - Heartsync{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Feedback Form -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-hs-600 to-hs-500 px-6 py-4">
+                <h1 class="text-2xl font-bold text-white">Feedback & Support</h1>
+                <p class="text-hs-100 text-sm mt-1">Help us improve Heartsync</p>
+            </div>
+            
+            <div class="p-6">
+                <form id="feedbackForm" class="space-y-6">
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Feedback Type</label>
+                        <select id="feedbackType" required
+                                class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                            <option value="">Select type</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="bug">Bug Report</option>
+                            <option value="feature">Feature Request</option>
+                            <option value="complaint">Complaint</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Subject</label>
+                        <input type="text" id="subject" required
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Message</label>
+                        <textarea id="message" rows="6" required
+                                  placeholder="Please describe your feedback or issue in detail..."
+                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Attachments (Optional)</label>
+                        <input type="file" id="attachment" accept="image/*,application/pdf"
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        <p class="text-xs text-hs-500 mt-1">Screenshots or files that help explain your feedback</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="contactPermission">
+                        <label class="text-sm text-hs-700">You can contact me about this feedback</label>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-hs-600 text-white py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
+                        Submit Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ & Support Info -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-hs-900 mb-4">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <div>
+                        <button class="faq-question w-full text-left font-medium text-hs-800 hover:text-hs-600">
+                            How do I get verified?
+                        </button>
+                        <div class="faq-answer hidden mt-2 text-sm text-hs-600">
+                            Go to the Verification page and submit your government ID along with a selfie. Our team reviews submissions within 48 hours.
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button class="faq-question w-full text-left font-medium text-hs-800 hover:text-hs-600">
+                            How does matching work?
+                        </button>
+                        <div class="faq-answer hidden mt-2 text-sm text-hs-600">
+                            When two users like each other's profiles, it creates a match. You can then start messaging each other.
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button class="faq-question w-full text-left font-medium text-hs-800 hover:text-hs-600">
+                            How to report a user?
+                        </button>
+                        <div class="faq-answer hidden mt-2 text-sm text-hs-600">
+                            Go to the user's profile and click the Report button. Our moderation team will review the report.
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button class="faq-question w-full text-left font-medium text-hs-800 hover:text-hs-600">
+                            Is my data secure?
+                        </button>
+                        <div class="faq-answer hidden mt-2 text-sm text-hs-600">
+                            Yes! We take privacy seriously. Your personal information is encrypted and never shared without your consent.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-hs-50 rounded-2xl border border-hs-200 p-6">
+            <h2 class="text-lg font-semibold text-hs-900 mb-4">Contact Support</h2>
+            <div class="space-y-3">
+                <p class="text-sm text-hs-700">Email: support@heartsync.com</p>
+                <p class="text-sm text-hs-700">Response time: Within 24 hours</p>
+                <p class="text-sm text-hs-700">Emergency support: 24/7</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// FAQ Toggle
+document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const answer = btn.nextElementSibling;
+        answer.classList.toggle('hidden');
+    });
+});
+
+// Feedback Form Submission
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('type', document.getElementById('feedbackType').value);
+    formData.append('subject', document.getElementById('subject').value);
+    formData.append('message', document.getElementById('message').value);
+    formData.append('contact_permission', document.getElementById('contactPermission').checked);
+    
+    const attachment = document.getElementById('attachment').files[0];
+    if (attachment) {
+        formData.append('attachment', attachment);
+    }
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Submitting...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/submit-feedback', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Thank you for your feedback! We appreciate your input.');
+            e.target.reset();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    } finally {
+        submitBtn.textContent = 'Submit Feedback';
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

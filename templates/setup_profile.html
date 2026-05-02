@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Your Profile - Heartsync{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
+        <div class="text-center mb-8">
+            <div class="inline-block bg-hs-100 rounded-full px-4 py-2 mb-4">
+                <span class="text-hs-700 font-semibold">{{ category.icon }} {{ category.name }}</span>
+            </div>
+            <h1 class="text-3xl font-bold text-hs-900 mb-2">Complete Your Profile</h1>
+            <p class="text-hs-600">Tell us more about yourself to find better matches</p>
+        </div>
+        
+        <form method="POST" class="space-y-6">
+            <!-- Personal Information -->
+            <div>
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Personal Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Full Name</label>
+                        <input type="text" name="full_name" required 
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Age</label>
+                            <input type="number" name="age" required min="18" max="100"
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Location</label>
+                            <input type="text" name="location" required placeholder="City, Country"
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Occupation</label>
+                        <input type="text" name="occupation" 
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">About Me</label>
+                        <textarea name="bio" rows="4" 
+                                  placeholder="Tell potential matches about yourself, your interests, and what you're looking for..."
+                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interests -->
+            <div>
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Interests</h2>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Select your interests</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
+                        {% for interest in suggested_interests %}
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" name="interests" value="{{ interest }}" class="rounded border-hs-300 text-hs-600 focus:ring-hs-500">
+                            <span class="text-hs-700">{{ interest }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Other interests (comma-separated)</label>
+                        <input type="text" name="custom_interests" 
+                               placeholder="e.g., Photography, Hiking, Cooking"
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Basic Information -->
+            <div>
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Basic Information</h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Gender</label>
+                            <select name="gender" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Non-binary">Non-binary</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Looking For</label>
+                            <select name="looking_for" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                                <option value="Long-term relationship">Long-term relationship</option>
+                                <option value="Casual dating">Casual dating</option>
+                                <option value="Friendship">Friendship</option>
+                                <option value="Not sure yet">Not sure yet</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Height</label>
+                            <input type="text" name="height" placeholder="e.g., 5'9\""
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Education</label>
+                            <input type="text" name="education" placeholder="e.g., Bachelor's Degree"
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Dating Goals</label>
+                        <textarea name="dating_goals" rows="2" 
+                                  placeholder="What are you hoping to find on Heartsync?"
+                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Deal Breakers (Optional)</label>
+                        <textarea name="deal_breakers" rows="2" 
+                                  placeholder="Things that are important for you in a partner"
+                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-hs-600 text-white py-3 rounded-lg font-semibold hover:bg-hs-700 transition">
+                Complete Profile Setup
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

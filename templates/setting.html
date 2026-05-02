@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Heartsync{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+    <div class="p-8 border-b border-hs-200">
+        <h1 class="text-3xl font-bold text-hs-900">Settings</h1>
+        <p class="text-hs-600 mt-1">Manage your account preferences</p>
+    </div>
+    
+    <div class="divide-y divide-hs-200">
+        <!-- Dating Preferences -->
+        <div class="p-8">
+            <h2 class="text-xl font-semibold text-hs-800 mb-6">Dating Preferences</h2>
+            
+            <form id="preferencesForm" class="space-y-4 max-w-md">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-hs-700 font-medium mb-2">Minimum Age</label>
+                        <input type="number" name="age_min" value="{{ preferences.age_min }}" min="18" max="100"
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-hs-700 font-medium mb-2">Maximum Age</label>
+                        <input type="number" name="age_max" value="{{ preferences.age_max }}" min="18" max="100"
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">Maximum Distance (km)</label>
+                    <input type="number" name="distance_max" value="{{ preferences.distance_max }}" min="1" max="500"
+                           class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">Looking For</label>
+                    <select name="looking_for_pref" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        <option value="" {% if not preferences.looking_for %}selected{% endif %}>Anyone</option>
+                        <option value="Long-term relationship" {% if preferences.looking_for == 'Long-term relationship' %}selected{% endif %}>Long-term relationship</option>
+                        <option value="Casual dating" {% if preferences.looking_for == 'Casual dating' %}selected{% endif %}>Casual dating</option>
+                        <option value="Friendship" {% if preferences.looking_for == 'Friendship' %}selected{% endif %}>Friendship</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">Show Me</label>
+                    <select name="show_me" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        <option value="Everyone" {% if preferences.show_me == 'Everyone' %}selected{% endif %}>Everyone</option>
+                        <option value="Men" {% if preferences.show_me == 'Men' %}selected{% endif %}>Men</option>
+                        <option value="Women" {% if preferences.show_me == 'Women' %}selected{% endif %}>Women</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
+                        Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Notification Settings -->
+        <div class="p-8">
+            <h2 class="text-xl font-semibold text-hs-800 mb-6">Notification Settings</h2>
+            
+            <form id="notificationsForm" class="space-y-6">
+                <div>
+                    <h3 class="font-medium text-hs-700 mb-3">Email Notifications</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="email_likes" {% if notifications.email_likes %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">Someone likes my profile</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="email_messages" {% if notifications.email_messages %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">New message received</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="email_matches" {% if notifications.email_matches %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">New match found</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium text-hs-700 mb-3">Push Notifications</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="push_likes" {% if notifications.push_likes %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">Someone likes my profile</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="push_messages" {% if notifications.push_messages %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">New message received</span>
+                        </label>
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="push_matches" {% if notifications.push_matches %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                            <span class="text-hs-700">New match found</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
+                        Save Notification Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Privacy Settings -->
+        <div class="p-8">
+            <h2 class="text-xl font-semibold text-hs-800 mb-6">Privacy Settings</h2>
+            
+            <form id="privacyForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" name="show_age" {% if privacy.show_age %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                        <span class="text-hs-700">Show my age on my profile</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" name="show_distance" {% if privacy.show_distance %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                        <span class="text-hs-700">Show my distance to matches</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" name="show_online_status" {% if privacy.show_online_status %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                        <span class="text-hs-700">Show when I'm online</span>
+                    </label>
+                    <label class="flex items-center space-x-3">
+                        <input type="checkbox" name="allow_messages_from_matches" {% if privacy.allow_messages_from_matches %}checked{% endif %} class="w-4 h-4 text-hs-600 rounded border-hs-300 focus:ring-hs-500">
+                        <span class="text-hs-700">Allow messages from matches</span>
+                    </label>
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
+                        Save Privacy Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Security -->
+        <div class="p-8">
+            <h2 class="text-xl font-semibold text-hs-800 mb-6">Security</h2>
+            
+            <form id="passwordForm" class="space-y-4 max-w-md">
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">Current Password</label>
+                    <input type="password" name="current_password" required
+                           class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">New Password</label>
+                    <input type="password" name="new_password" required
+                           class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-700 font-medium mb-2">Confirm New Password</label>
+                    <input type="password" name="confirm_password" required
+                           class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
+                        Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="p-8">
+            <h2 class="text-xl font-semibold text-red-600 mb-6">Danger Zone</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-hs-700 font-medium">Delete Account</p>
+                        <p class="text-hs-500 text-sm">Permanently delete your account and all data</p>
+                    </div>
+                    <button onclick="deleteAccount()" class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('preferencesForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append('action', 'update_preferences');
+        
+        const response = await fetch('/settings', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        alert(data.message);
+        if (data.success) location.reload();
+    });
+    
+    document.getElementById('notificationsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append('action', 'update_notifications');
+        
+        const response = await fetch('/settings', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        alert(data.message);
+        if (data.success) location.reload();
+    });
+    
+    document.getElementById('privacyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append('action', 'update_privacy');
+        
+        const response = await fetch('/settings', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        alert(data.message);
+        if (data.success) location.reload();
+    });
+    
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append('action', 'change_password');
+        
+        const response = await fetch('/settings', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        alert(data.message);
+        if (data.success) {
+            e.target.reset();
+        }
+    });
+    
+    function deleteAccount() {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            const confirmation = prompt('Type "DELETE" to confirm account deletion');
+            if (confirmation === 'DELETE') {
+                const formData = new FormData();
+                formData.append('action', 'delete_account');
+                
+                fetch('/settings', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

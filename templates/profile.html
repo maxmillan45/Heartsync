@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Heartsync{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+    <!-- Cover Photo -->
+    <div class="h-48 bg-gradient-to-r from-hs-600 via-hs-500 to-hs-400 relative">
+        <!-- Profile Actions -->
+        <div class="absolute top-4 right-6 flex space-x-3">
+            <button onclick="toggleEditMode()" class="bg-white text-hs-700 px-5 py-2 rounded-full font-semibold hover:bg-hs-50 transition shadow-md">
+                Edit Profile
+            </button>
+            <button class="bg-hs-100 text-hs-700 px-5 py-2 rounded-full font-semibold hover:bg-hs-200 transition shadow-md">
+                Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Avatar Section -->
+    <div class="relative px-8">
+        <div class="relative inline-block -mt-16">
+            <div class="relative">
+                <img src="{{ user.avatar_url or '/static/uploads/avatars/default-avatar.jpg' }}" 
+                     alt="Profile Avatar" 
+                     id="avatarImage"
+                     class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover bg-white">
+                <button onclick="document.getElementById('avatarInput').click()" 
+                        class="absolute bottom-0 right-0 bg-hs-600 text-white p-1.5 rounded-full text-xs hover:bg-hs-700 transition shadow-md">
+                    Edit
+                </button>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="px-8 pb-8">
+        <!-- Display Mode -->
+        <div id="displayMode">
+            <div class="mt-4">
+                <h1 class="text-3xl font-bold text-hs-900">{{ user.full_name or 'Not specified' }}</h1>
+                <div class="flex items-center space-x-3 text-hs-600 mt-1 flex-wrap">
+                    <span class="flex items-center space-x-1">
+                        <span>Age:</span>
+                        <span>{{ user.age or '?' }} years</span>
+                    </span>
+                    <span class="text-hs-300">|</span>
+                    <span class="flex items-center space-x-1">
+                        <span>Location:</span>
+                        <span>{{ user.location or 'Not specified' }}</span>
+                    </span>
+                </div>
+                <p class="text-hs-500 mt-1 flex items-center space-x-1">
+                    <span>Occupation:</span>
+                    <span>{{ user.occupation or 'Not specified' }}</span>
+                </p>
+                {% if category %}
+                <div class="mt-2 inline-block bg-hs-100 rounded-full px-3 py-1">
+                    <span class="text-xs text-hs-700 font-medium">{{ category.icon }} {{ category.name }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2">About Me</h2>
+                <p class="text-hs-700 mt-3 leading-relaxed">{{ user.bio or 'No bio added yet.' }}</p>
+            </div>
+
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2">Interests</h2>
+                <div class="flex flex-wrap gap-2 mt-3">
+                    {% if user.interests and user.interests|length > 0 %}
+                        {% for interest in user.interests %}
+                        <span class="bg-hs-100 text-hs-700 px-3 py-1 rounded-full text-sm font-medium">{{ interest }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-hs-500">No interests added yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2">Basic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div>
+                        <label class="text-hs-500 text-sm">Gender</label>
+                        <p class="text-hs-800 font-medium">{{ user.gender or 'Not specified' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-hs-500 text-sm">Looking For</label>
+                        <p class="text-hs-800 font-medium">{{ user.looking_for or 'Not specified' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-hs-500 text-sm">Height</label>
+                        <p class="text-hs-800 font-medium">{{ user.height or 'Not specified' }}</p>
+                    </div>
+                    <div>
+                        <label class="text-hs-500 text-sm">Education</label>
+                        <p class="text-hs-800 font-medium">{{ user.education or 'Not specified' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Mode -->
+        <div id="editMode" class="hidden">
+            <form id="profileEditForm" onsubmit="saveProfile(event)" class="mt-6 space-y-6">
+                <div>
+                    <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Personal Information</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" value="{{ user.full_name or '' }}" 
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none" required>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Age</label>
+                                <input type="number" id="age" name="age" value="{{ user.age or '' }}" 
+                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Location</label>
+                                <input type="text" id="location" name="location" value="{{ user.location or '' }}" 
+                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">Occupation</label>
+                            <input type="text" id="occupation" name="occupation" value="{{ user.occupation or '' }}" 
+                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-hs-800 font-medium mb-2">About Me</label>
+                            <textarea id="bio" name="bio" rows="4" 
+                                      class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none">{{ user.bio or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Interests</h2>
+                    <div>
+                        <label class="block text-hs-800 font-medium mb-2">Interests (comma-separated)</label>
+                        <input type="text" id="interests" name="interests" value="{{ user.interests|join(', ') if user.interests else '' }}" 
+                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none" placeholder="Hiking, Photography, Travel">
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Basic Information</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Gender</label>
+                                <select id="gender" name="gender" 
+                                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Non-binary" {% if user.gender == 'Non-binary' %}selected{% endif %}>Non-binary</option>
+                                    <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Looking For</label>
+                                <select id="lookingFor" name="lookingFor" 
+                                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                                    <option value="Long-term relationship" {% if user.looking_for == 'Long-term relationship' %}selected{% endif %}>Long-term relationship</option>
+                                    <option value="Casual dating" {% if user.looking_for == 'Casual dating' %}selected{% endif %}>Casual dating</option>
+                                    <option value="Friendship" {% if user.looking_for == 'Friendship' %}selected{% endif %}>Friendship</option>
+                                    <option value="Not sure yet" {% if user.looking_for == 'Not sure yet' %}selected{% endif %}>Not sure yet</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Height</label>
+                                <input type="text" id="height" name="height" value="{{ user.height or '' }}" placeholder="e.g., 5'9\"" 
+                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-hs-800 font-medium mb-2">Education</label>
+                                <input type="text" id="education" name="education" value="{{ user.education or '' }}" 
+                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="cancelEdit()" 
+                            class="px-6 py-2 bg-hs-100 text-hs-700 rounded-lg font-semibold hover:bg-hs-200 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-6 py-2 bg-hs-600 text-white rounded-lg font-semibold hover:bg-hs-700 transition">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar Section -->
+    <div class="border-t border-hs-200 mt-6 px-8 py-6 bg-hs-50">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Profile Completion -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-hs-200">
+                <h3 class="font-semibold text-hs-800 mb-3">Profile Completion</h3>
+                <div class="h-2 bg-hs-200 rounded-full overflow-hidden mb-2">
+                    <div class="h-full bg-hs-600 rounded-full transition-all duration-500" style="width: {{ completion_percentage }}%"></div>
+                </div>
+                <p class="text-sm text-hs-600">{{ completion_percentage }}% Complete</p>
+                {% if completion_percentage < 100 %}
+                <p class="text-xs text-hs-500 mt-2">Complete your profile to get more matches</p>
+                {% endif %}
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-hs-200">
+                <h3 class="font-semibold text-hs-800 mb-3">Account Statistics</h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-hs-600 text-sm">Profile Views</span>
+                        <span class="font-bold text-hs-800">{{ profile_views }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-hs-600 text-sm">Likes Received</span>
+                        <span class="font-bold text-hs-800">{{ likes_received }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-hs-600 text-sm">Matches</span>
+                        <span class="font-bold text-hs-800">{{ matches_count }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photo Gallery -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-hs-200">
+                <h3 class="font-semibold text-hs-800 mb-3">Photo Gallery</h3>
+                <div class="grid grid-cols-3 gap-2">
+                    {% if user.photos and user.photos|length > 0 %}
+                        {% for photo in user.photos[:5] %}
+                        <div class="aspect-square rounded-lg overflow-hidden bg-hs-100">
+                            <img src="{{ photo }}" alt="User photo" class="w-full h-full object-cover">
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-span-3 text-center text-hs-500 text-sm py-4">
+                            No photos uploaded yet
+                        </div>
+                    {% endif %}
+                    <button onclick="addPhoto()" 
+                            class="aspect-square rounded-lg border-2 border-dashed border-hs-300 bg-hs-50 hover:bg-hs-100 transition flex items-center justify-center text-hs-600 font-semibold text-sm">
+                        + Add
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isEditMode = false;
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        document.getElementById('displayMode').style.display = isEditMode ? 'none' : 'block';
+        document.getElementById('editMode').style.display = isEditMode ? 'block' : 'none';
+    }
+
+    function cancelEdit() {
+        isEditMode = false;
+        document.getElementById('displayMode').style.display = 'block';
+        document.getElementById('editMode').style.display = 'none';
+    }
+
+    function saveProfile(event) {
+        event.preventDefault();
+        
+        const formData = {
+            full_name: document.getElementById('fullName').value,
+            age: parseInt(document.getElementById('age').value),
+            location: document.getElementById('location').value,
+            occupation: document.getElementById('occupation').value,
+            bio: document.getElementById('bio').value,
+            interests: document.getElementById('interests').value.split(',').map(i => i.trim()).filter(i => i),
+            gender: document.getElementById('gender').value,
+            looking_for: document.getElementById('lookingFor').value,
+            height: document.getElementById('height').value,
+            education: document.getElementById('education').value
+        };
+
+        fetch('/api/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Profile updated successfully!');
+                location.reload();
+            } else {
+                alert('Error saving profile: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving your profile');
+        });
+    }
+
+    function addPhoto() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('photo', file);
+                
+                fetch('/api/upload-photo', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Photo uploaded successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error uploading photo: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while uploading your photo');
+                });
+            }
+        };
+        input.click();
+    }
+
+    document.getElementById('avatarInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('avatar', file);
+            
+            fetch('/api/upload-avatar', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('avatarImage').src = URL.createObjectURL(file);
+                    alert('Avatar updated successfully!');
+                } else {
+                    alert('Error uploading avatar: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while uploading your avatar');
+            });
+        }
+    });
+</script>
+{% endblock %}

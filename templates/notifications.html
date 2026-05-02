@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Heartsync{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-hs-600 to-hs-500 px-6 py-4">
+        <h1 class="text-2xl font-bold text-white">Notifications</h1>
+        <p class="text-hs-100 text-sm mt-1">Stay updated with your activity</p>
+    </div>
+    
+    <div class="divide-y divide-hs-100">
+        {% if notifications %}
+            {% for notif in notifications %}
+            <div class="p-4 hover:bg-hs-50 transition {% if not notif.read %}bg-hs-50{% endif %}">
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        {% if notif.type == 'like' %}
+                        <span class="text-hs-600">(H)</span>
+                        {% elif notif.type == 'match' %}
+                        <span class="text-hs-600">(M)</span>
+                        {% elif notif.type == 'message' %}
+                        <span class="text-hs-600">(C)</span>
+                        {% else %}
+                        <span class="text-hs-600">(N)</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-hs-900">{{ notif.message }}</p>
+                        <p class="text-xs text-hs-500 mt-1">{{ notif.time_ago }}</p>
+                    </div>
+                    {% if not notif.read %}
+                    <button class="mark-read-btn text-xs text-hs-500 hover:text-hs-700" data-id="{{ notif.id }}">
+                        Mark read
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-16 h-16 bg-hs-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl text-hs-500">(N)</span>
+                </div>
+                <h3 class="text-lg font-semibold text-hs-800 mb-2">No notifications</h3>
+                <p class="text-hs-600">When you receive likes or matches, they'll appear here</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.mark-read-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        try {
+            const response = await fetch('/api/mark-notification-read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            if (response.ok) {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+</script>
+{% endblock %}

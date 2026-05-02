@@ -1,0 +1,25 @@
+dfafba2 Merge branch 'main' of https://github.com/maxmillan45/Heartsync-App into clean-version
+f7171d8 Merge branch 'main' of https://github.com/maxmillan45/Heartsync-App into clean-version
+6ff18ba Initial commit
+592fc92 Clean version without secrets
+934962d Add professional footer and update templates
+2f51738 Add settings page with profile, preferences, notifications, privacy, and security tabs
+ea92768 Add dashboard, feedback, notifications, and verification templates for enhanced user experience
+d974672 Enhance image processing and quality settings; update user profile structure with compatibility scoring and verification info
+40e02be - Update discover.html to include user interests and improved button styles.
+2d3c47c Add settings page with user preferences, notifications, privacy, and security options
+f5311a0 Remove placeholder text from messages page for improved clarity
+e248301 Refactor code structure for improved readability and maintainability
+569f41e Redirect users to discover page on login and add home route for consistent navigation
+b0c1968 Refactor navigation links for improved readability and consistency
+cb3008c Add discover, matches, and messages pages with improved styling and user interaction
+f9997f5 Refactor discover page for improved styling consistency and accessibility
+04d2dba Refactor profile page for improved styling consistency and accessibility
+af7d9e5 Refactor setup profile page for improved styling consistency and accessibility
+30d60f6 Refactor category selection page for improved styling and consistency
+4f8091a Enhance registration page styling for improved consistency and accessibility
+f62c203 Refactor login page for consistent styling and improved accessibility
+75e3fcf - Update base template for consistent styling
+8769177 Implement user profile management
+fedda6f Add initial files for app, profile scripts, and templates
+09d6cea Add documentation

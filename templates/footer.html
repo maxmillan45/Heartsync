@@ -1,0 +1,88 @@
+<!-- Footer -->
+<footer class="bg-white border-t border-hs-200 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Main Footer Content -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Brand Column -->
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-hs-600 to-hs-400 flex items-center justify-center text-white font-bold text-sm">H</div>
+                    <span class="text-lg font-bold text-hs-700">Heartsync</span>
+                </div>
+                <p class="text-hs-600 text-sm mb-4">Find your perfect match in a safe and meaningful way. Connecting hearts, creating relationships.</p>
+                <div class="flex space-x-3">
+                    <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
+                        <span class="text-sm">f</span>
+                    </a>
+                    <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
+                        <span class="text-sm">t</span>
+                    </a>
+                    <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
+                        <span class="text-sm">in</span>
+                    </a>
+                    <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
+                        <span class="text-sm">ig</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h3 class="font-semibold text-hs-800 mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('dashboard') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Dashboard</a></li>
+                    <li><a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Discover</a></li>
+                    <li><a href="{{ url_for('matches') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Matches</a></li>
+                    <li><a href="{{ url_for('messages') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Messages</a></li>
+                    <li><a href="{{ url_for('profile') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Profile</a></li>
+                </ul>
+            </div>
+            
+            <!-- Support -->
+            <div>
+                <h3 class="font-semibold text-hs-800 mb-4">Support</h3>
+                <ul class="space-y-2">
+                    <li><a href="{{ url_for('feedback') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Help Center</a></li>
+                    <li><a href="{{ url_for('feedback') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Feedback</a></li>
+                    <li><a href="{{ url_for('settings') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Privacy Settings</a></li>
+                    <li><a href="{{ url_for('verification') }}" class="text-hs-600 text-sm hover:text-hs-700 transition">Get Verified</a></li>
+                    <li><a href="#" class="text-hs-600 text-sm hover:text-hs-700 transition">Safety Tips</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact & Legal -->
+            <div>
+                <h3 class="font-semibold text-hs-800 mb-4">Contact</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center space-x-2 text-hs-600 text-sm">
+                        <span>(E)</span>
+                        <span>support@heartsync.com</span>
+                    </li>
+                    <li class="flex items-center space-x-2 text-hs-600 text-sm">
+                        <span>(P)</span>
+                        <span>1-800-HEARTSYNC</span>
+                    </li>
+                    <li class="flex items-start space-x-2 text-hs-600 text-sm">
+                        <span>(L)</span>
+                        <span>123 Love Street, Suite 100<br>New York, NY 10001</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Bottom Bar -->
+        <div class="border-t border-hs-200 mt-8 pt-6">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="text-hs-500 text-xs">
+                    &copy; 2024 Heartsync. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Terms of Service</a>
+                    <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Privacy Policy</a>
+                    <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Cookie Policy</a>
+                    <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
