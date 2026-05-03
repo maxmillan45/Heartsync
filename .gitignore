@@ -1,28 +1,9 @@
-# Create .gitignore
-cat > .gitignore << EOF
-# Environment variables
-.env
-*.env
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
 venv/
-env/
-ENV/
-
-# Uploads
-static/uploads/
-static/uploads/avatars/
-static/uploads/photos/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Git
-.DS_Store
-EOF.env
+__pycache__/
+*.pyc
+.env
+flask_session/
+heartsync.db
+*.docx
+commit-history-backup.txt
+static/uploads/flask_session/
