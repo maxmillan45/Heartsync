@@ -1,12 +1,12 @@
 # ============================================
-# COMPLETE HEARTSYNC APP - NO EMOJIS
+# COMPLETE HEARTSYNC APP - PRODUCTION READY
 # ============================================
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_session import Session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image
 import os
 import json
 from datetime import datetime, timedelta
@@ -48,18 +48,18 @@ os.makedirs('static/uploads/avatars', exist_ok=True)
 os.makedirs('static/uploads/photos', exist_ok=True)
 
 # ============================================
-# USER CATEGORIES (NO EMOJIS)
+# USER CATEGORIES
 # ============================================
 
 CATEGORIES = {
-    'student': {'name': 'Student', 'icon': '(S)', 'color': 'blue', 'description': 'Currently studying'},
-    'gamer': {'name': 'Gamer', 'icon': '(G)', 'color': 'green', 'description': 'Passionate about gaming'},
-    'professional': {'name': 'Professional', 'icon': '(P)', 'color': 'purple', 'description': 'Career-focused'},
-    'fitness': {'name': 'Fitness', 'icon': '(F)', 'color': 'orange', 'description': 'Active lifestyle'},
-    'creative': {'name': 'Creative', 'icon': '(C)', 'color': 'pink', 'description': 'Artist or musician'},
-    'traveler': {'name': 'Traveler', 'icon': '(T)', 'color': 'teal', 'description': 'Love exploring'},
-    'foodie': {'name': 'Foodie', 'icon': '(FD)', 'color': 'red', 'description': 'Passionate about food'},
-    'no_category': {'name': 'No Category', 'icon': '(N)', 'color': 'gray', 'description': 'No category selected'}
+    'student': {'name': 'Student', 'icon': 'fa-graduation-cap', 'color': 'blue', 'description': 'Currently studying'},
+    'gamer': {'name': 'Gamer', 'icon': 'fa-gamepad', 'color': 'green', 'description': 'Passionate about gaming'},
+    'professional': {'name': 'Professional', 'icon': 'fa-briefcase', 'color': 'purple', 'description': 'Career-focused'},
+    'fitness': {'name': 'Fitness', 'icon': 'fa-dumbbell', 'color': 'orange', 'description': 'Active lifestyle'},
+    'creative': {'name': 'Creative', 'icon': 'fa-palette', 'color': 'pink', 'description': 'Artist or musician'},
+    'traveler': {'name': 'Traveler', 'icon': 'fa-plane', 'color': 'teal', 'description': 'Love exploring'},
+    'foodie': {'name': 'Foodie', 'icon': 'fa-utensils', 'color': 'red', 'description': 'Passionate about food'},
+    'no_category': {'name': 'No Category', 'icon': 'fa-user', 'color': 'gray', 'description': 'No category selected'}
 }
 
 # ============================================
@@ -169,7 +169,7 @@ def init_db():
         ''')
         
         conn.commit()
-        print("Database ready!")
+        print("Database initialized successfully!")
 
 init_db()
 
@@ -217,7 +217,8 @@ def save_profile(email, profile_data):
               profile_data.get('bio'), json.dumps(profile_data.get('interests', [])),
               profile_data.get('gender'), profile_data.get('looking_for'),
               profile_data.get('height'), profile_data.get('education'),
-              profile_data.get('avatar_url'), json.dumps(profile_data.get('photos', [])),
+              profile_data.get('avatar_url', '/static/uploads/avatars/default.jpg'), 
+              json.dumps(profile_data.get('photos', [])),
               datetime.now().isoformat()))
         conn.commit()
 
@@ -360,9 +361,9 @@ def add_notification(user_id, notif_type, message):
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO notifications (user_id, type, message, timestamp)
-            VALUES (?, ?, ?, ?)
-        ''', (user_id, notif_type, message, datetime.now().isoformat()))
+            INSERT INTO notifications (user_id, type, message, timestamp, read_status)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (user_id, notif_type, message, datetime.now().isoformat(), 0))
         conn.commit()
 
 def get_notifications(user_id):
@@ -539,12 +540,18 @@ def setup_profile():
 def dashboard():
     profile = get_profile(session['user_id']) or {}
     matches = get_matches(session['user_id'])
+    user = get_user(session['user_id'])
     
     recent = []
     for match in matches[:5]:
         p = get_profile(match)
         if p:
-            recent.append({'email': match, 'name': p.get('full_name'), 'avatar_url': p.get('avatar_url'), 'location': p.get('location')})
+            recent.append({
+                'email': match,
+                'name': p.get('full_name', 'Unknown'),
+                'avatar_url': p.get('avatar_url', '/static/uploads/avatars/default.jpg'),
+                'location': p.get('location', 'Unknown')
+            })
     
     passed = get_passed(session['user_id'])
     all_users = get_all_users()
@@ -560,9 +567,9 @@ def dashboard():
                     if compatibility > 60:
                         suggestions.append({
                             'email': email,
-                            'name': p.get('full_name'),
-                            'avatar_url': p.get('avatar_url'),
-                            'location': p.get('location'),
+                            'name': p.get('full_name', 'Unknown'),
+                            'avatar_url': p.get('avatar_url', '/static/uploads/avatars/default.jpg'),
+                            'location': p.get('location', 'Unknown'),
                             'compatibility': compatibility,
                             'verified': False
                         })
@@ -740,7 +747,15 @@ def messages():
 @login_required
 def notifications():
     user_notifications = get_notifications(session['user_id'])
+    for notif in user_notifications:
+        notif['time_ago'] = format_time_ago(notif.get('timestamp', ''))
     return render_template('notifications.html', notifications=user_notifications)
+
+@app.route('/settings')
+@login_required
+def settings():
+    profile_data = get_profile(session['user_id']) or {}
+    return render_template('settings.html', user=profile_data, user_email=session['user_id'])
 
 # ============================================
 # API ROUTES
@@ -919,6 +934,26 @@ def mark_notification_read():
     if notif_id:
         mark_notification_read(notif_id)
     return jsonify({'success': True})
+
+def format_time_ago(timestamp):
+    if not timestamp:
+        return 'Just now'
+    try:
+        dt = datetime.fromisoformat(timestamp)
+        now = datetime.now()
+        diff = now - dt
+        if diff.days > 7:
+            return dt.strftime('%b %d')
+        elif diff.days > 0:
+            return f'{diff.days} days ago'
+        elif diff.seconds > 3600:
+            return f'{diff.seconds // 3600} hours ago'
+        elif diff.seconds > 60:
+            return f'{diff.seconds // 60} minutes ago'
+        else:
+            return 'Just now'
+    except:
+        return 'Recently'
 
 @app.route('/logout')
 def logout():

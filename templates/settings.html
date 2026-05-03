@@ -3,391 +3,80 @@
 {% block title %}Settings - Heartsync{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
-        <div class="bg-gradient-to-r from-hs-600 to-hs-500 px-6 py-4">
-            <h1 class="text-2xl font-bold text-white">Account Settings</h1>
-            <p class="text-hs-100 text-sm mt-1">Manage your account preferences</p>
-        </div>
-        
-        <div class="p-6">
-            <!-- Settings Tabs -->
-            <div class="flex border-b border-hs-200 mb-6">
-                <button class="settings-tab px-4 py-2 text-hs-600 font-medium border-b-2 border-transparent hover:text-hs-800 transition" data-tab="profile">
-                    Profile
-                </button>
-                <button class="settings-tab px-4 py-2 text-hs-600 font-medium border-b-2 border-transparent hover:text-hs-800 transition" data-tab="preferences">
-                    Preferences
-                </button>
-                <button class="settings-tab px-4 py-2 text-hs-600 font-medium border-b-2 border-transparent hover:text-hs-800 transition" data-tab="notifications">
-                    Notifications
-                </button>
-                <button class="settings-tab px-4 py-2 text-hs-600 font-medium border-b-2 border-transparent hover:text-hs-800 transition" data-tab="privacy">
-                    Privacy
-                </button>
-                <button class="settings-tab px-4 py-2 text-hs-600 font-medium border-b-2 border-transparent hover:text-hs-800 transition" data-tab="security">
-                    Security
-                </button>
-            </div>
-            
-            <!-- Profile Settings Tab -->
-            <div id="profileTab" class="settings-tab-content">
-                <form id="profileForm" class="space-y-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-hs-900 mb-4">Personal Information</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Full Name</label>
-                                <input type="text" id="fullName" value="{{ user.full_name }}" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Email Address</label>
-                                <input type="email" value="{{ user_email }}" disabled
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg bg-hs-50 text-hs-500 outline-none cursor-not-allowed">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Age</label>
-                                <input type="number" id="age" value="{{ user.age }}" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Location</label>
-                                <input type="text" id="location" value="{{ user.location }}" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Occupation</label>
-                                <input type="text" id="occupation" value="{{ user.occupation }}" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Education</label>
-                                <input type="text" id="education" value="{{ user.education }}" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Gender</label>
-                                <select id="gender" 
-                                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
-                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
-                                    <option value="Non-binary" {% if user.gender == 'Non-binary' %}selected{% endif %}>Non-binary</option>
-                                    <option value="Prefer not to say" {% if user.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Height</label>
-                                <input type="text" id="height" value="{{ user.height }}" placeholder="e.g., 5'9\"" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Bio</label>
-                        <textarea id="bio" rows="4" 
-                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none">{{ user.bio }}</textarea>
-                        <p class="text-xs text-hs-500 mt-1">Tell others about yourself</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Interests (comma-separated)</label>
-                        <input type="text" id="interests" value="{{ user.interests|join(', ') }}" 
-                               placeholder="Hiking, Photography, Travel, Music"
-                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                        <p class="text-xs text-hs-500 mt-1">Add your hobbies and interests</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Looking For</label>
-                        <select id="lookingFor" 
-                                class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            <option value="Long-term relationship" {% if user.looking_for == 'Long-term relationship' %}selected{% endif %}>Long-term relationship</option>
-                            <option value="Casual dating" {% if user.looking_for == 'Casual dating' %}selected{% endif %}>Casual dating</option>
-                            <option value="Friendship" {% if user.looking_for == 'Friendship' %}selected{% endif %}>Friendship</option>
-                            <option value="Not sure yet" {% if user.looking_for == 'Not sure yet' %}selected{% endif %}>Not sure yet</option>
-                        </select>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
-                            Save Profile Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Preferences Tab -->
-            <div id="preferencesTab" class="settings-tab-content hidden">
-                <form id="preferencesForm" class="space-y-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-hs-900 mb-4">Discovery Preferences</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Age Range</label>
-                                <div class="flex items-center space-x-4">
-                                    <input type="number" id="ageMin" value="{{ preferences.age_min }}" min="18" max="100"
-                                           class="w-24 px-3 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                    <span>to</span>
-                                    <input type="number" id="ageMax" value="{{ preferences.age_max }}" min="18" max="100"
-                                           class="w-24 px-3 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Maximum Distance</label>
-                                <div class="flex items-center space-x-4">
-                                    <input type="range" id="distanceMax" min="10" max="100" step="10" value="{{ preferences.distance_max }}"
-                                           class="w-64">
-                                    <span id="distanceValue" class="text-hs-600">{{ preferences.distance_max }} miles</span>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Looking For Preference</label>
-                                <select id="lookingForPref" 
-                                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                    <option value="">Anyone</option>
-                                    <option value="Long-term relationship" {% if preferences.looking_for == 'Long-term relationship' %}selected{% endif %}>Long-term relationship</option>
-                                    <option value="Casual dating" {% if preferences.looking_for == 'Casual dating' %}selected{% endif %}>Casual dating</option>
-                                    <option value="Friendship" {% if preferences.looking_for == 'Friendship' %}selected{% endif %}>Friendship</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Show Me</label>
-                                <select id="showMe" 
-                                        class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                    <option value="Everyone" {% if preferences.show_me == 'Everyone' %}selected{% endif %}>Everyone</option>
-                                    <option value="Men" {% if preferences.show_me == 'Men' %}selected{% endif %}>Men</option>
-                                    <option value="Women" {% if preferences.show_me == 'Women' %}selected{% endif %}>Women</option>
-                                    <option value="Non-binary" {% if preferences.show_me == 'Non-binary' %}selected{% endif %}>Non-binary</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
-                            Save Preferences
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Notifications Tab -->
-            <div id="notificationsTab" class="settings-tab-content hidden">
-                <form id="notificationsForm" class="space-y-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-hs-900 mb-4">Email Notifications</h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div>
-                                    <p class="font-medium text-hs-800">New Likes</p>
-                                    <p class="text-xs text-hs-500">Get email when someone likes your profile</p>
-                                </div>
-                                <input type="checkbox" id="emailLikes" {% if notifications.email_likes %}checked{% endif %} class="toggle-checkbox">
-                            </label>
-                            
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div>
-                                    <p class="font-medium text-hs-800">New Messages</p>
-                                    <p class="text-xs text-hs-500">Get email when you receive a message</p>
-                                </div>
-                                <input type="checkbox" id="emailMessages" {% if notifications.email_messages %}checked{% endif %} class="toggle-checkbox">
-                            </label>
-                            
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div>
-                                    <p class="font-medium text-hs-800">New Matches</p>
-                                    <p class="text-xs text-hs-500">Get email when you get a new match</p>
-                                </div>
-                                <input type="checkbox" id="emailMatches" {% if notifications.email_matches %}checked{% endif %} class="toggle-checkbox">
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3 class="text-lg font-semibold text-hs-900 mb-4">Push Notifications</h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center justify-between cursor-pointer">
-                                <div>
-                                    <p class="font-medium text-hs-800">Push Notifications</p>
-                                    <p class="text-xs text-hs-500">Receive push notifications in your browser</p>
-                                </div>
-                                <input type="checkbox" id="pushEnabled" class="toggle-checkbox">
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
-                            Save Notification Settings
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Privacy Tab -->
-            <div id="privacyTab" class="settings-tab-content hidden">
-                <form id="privacyForm" class="space-y-6">
-                    <div class="space-y-4">
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <div>
-                                <p class="font-medium text-hs-800">Show Age on Profile</p>
-                                <p class="text-xs text-hs-500">Display your age to other users</p>
-                            </div>
-                            <input type="checkbox" id="showAge" {% if privacy.show_age %}checked{% endif %} class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <div>
-                                <p class="font-medium text-hs-800">Show Distance</p>
-                                <p class="text-xs text-hs-500">Display approximate distance to matches</p>
-                            </div>
-                            <input type="checkbox" id="showDistance" {% if privacy.show_distance %}checked{% endif %} class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <div>
-                                <p class="font-medium text-hs-800">Show Online Status</p>
-                                <p class="text-xs text-hs-500">Let others know when you're online</p>
-                            </div>
-                            <input type="checkbox" id="showOnlineStatus" {% if privacy.show_online_status %}checked{% endif %} class="toggle-checkbox">
-                        </label>
-                        
-                        <label class="flex items-center justify-between cursor-pointer">
-                            <div>
-                                <p class="font-medium text-hs-800">Allow Messages from Matches Only</p>
-                                <p class="text-xs text-hs-500">Only matched users can message you</p>
-                            </div>
-                            <input type="checkbox" id="allowMessagesFromMatches" {% if privacy.allow_messages_from_matches %}checked{% endif %} class="toggle-checkbox">
-                        </label>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
-                            Save Privacy Settings
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Security Tab -->
-            <div id="securityTab" class="settings-tab-content hidden">
-                <form id="securityForm" class="space-y-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-hs-900 mb-4">Change Password</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Current Password</label>
-                                <input type="password" id="currentPassword" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">New Password</label>
-                                <input type="password" id="newPassword" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-hs-800 font-medium mb-2">Confirm New Password</label>
-                                <input type="password" id="confirmPassword" 
-                                       class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
-                            Change Password
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="mt-8 pt-6 border-t border-hs-200">
-                    <h3 class="text-lg font-semibold text-red-600 mb-4">Danger Zone</h3>
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p class="text-red-800 font-medium mb-2">Delete Account</p>
-                        <p class="text-sm text-red-600 mb-4">Once you delete your account, there is no going back. All your data will be permanently removed.</p>
-                        <button id="deleteAccountBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
-                            Delete Account
-                        </button>
-                    </div>
+<div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-hs-600 to-hs-500 px-6 py-4">
+        <h1 class="text-2xl font-bold text-white"><i class="fas fa-cog mr-2"></i> Settings</h1>
+        <p class="text-hs-100 text-sm mt-1">Manage your account preferences</p>
+    </div>
+    
+    <div class="p-6">
+        <form id="profileForm" class="space-y-6">
+            <h3 class="text-lg font-semibold text-hs-900"><i class="fas fa-user mr-2"></i> Profile Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Full Name</label>
+                    <input type="text" id="fullName" value="{{ user.full_name }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Email</label>
+                    <input type="email" value="{{ user_email }}" disabled class="w-full px-4 py-2 border border-hs-200 rounded-lg bg-hs-50 text-hs-500 outline-none cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Age</label>
+                    <input type="number" id="age" value="{{ user.age }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Location</label>
+                    <input type="text" id="location" value="{{ user.location }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Occupation</label>
+                    <input type="text" id="occupation" value="{{ user.occupation }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Education</label>
+                    <input type="text" id="education" value="{{ user.education }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Gender</label>
+                    <select id="gender" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                        <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Non-binary" {% if user.gender == 'Non-binary' %}selected{% endif %}>Non-binary</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-hs-800 font-medium mb-2">Looking For</label>
+                    <select id="lookingFor" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+                        <option value="Long-term relationship" {% if user.looking_for == 'Long-term relationship' %}selected{% endif %}>Long-term relationship</option>
+                        <option value="Casual dating" {% if user.looking_for == 'Casual dating' %}selected{% endif %}>Casual dating</option>
+                        <option value="Friendship" {% if user.looking_for == 'Friendship' %}selected{% endif %}>Friendship</option>
+                    </select>
                 </div>
             </div>
-        </div>
+            
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Bio</label>
+                <textarea id="bio" rows="4" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none resize-none">{{ user.bio }}</textarea>
+            </div>
+            
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Interests</label>
+                <input type="text" id="interests" value="{{ user.interests|join(', ') }}" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="bg-hs-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-hs-700 transition">
+                    <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<style>
-.toggle-checkbox {
-    appearance: none;
-    width: 44px;
-    height: 24px;
-    background-color: #e5e7eb;
-    border-radius: 9999px;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.toggle-checkbox:checked {
-    background-color: #B52360;
-}
-
-.toggle-checkbox::before {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: white;
-    border-radius: 50%;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s;
-}
-
-.toggle-checkbox:checked::before {
-    transform: translateX(20px);
-}
-</style>
-
 <script>
-// Tab switching
-document.querySelectorAll('.settings-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        const tabName = tab.dataset.tab;
-        
-        // Update tab styles
-        document.querySelectorAll('.settings-tab').forEach(t => {
-            t.classList.remove('border-hs-600', 'text-hs-800');
-            t.classList.add('border-transparent', 'text-hs-600');
-        });
-        tab.classList.add('border-hs-600', 'text-hs-800');
-        tab.classList.remove('border-transparent', 'text-hs-600');
-        
-        // Show selected content
-        document.querySelectorAll('.settings-tab-content').forEach(content => {
-            content.classList.add('hidden');
-        });
-        document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-    });
-});
-
-// Distance slider
-const distanceSlider = document.getElementById('distanceMax');
-const distanceValue = document.getElementById('distanceValue');
-if (distanceSlider) {
-    distanceSlider.addEventListener('input', () => {
-        distanceValue.textContent = distanceSlider.value + ' miles';
-    });
-}
-
-// Profile Form Submission
 document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
     const formData = {
         full_name: document.getElementById('fullName').value,
         age: parseInt(document.getElementById('age').value),
@@ -397,7 +86,7 @@ document.getElementById('profileForm')?.addEventListener('submit', async (e) => 
         interests: document.getElementById('interests').value.split(',').map(i => i.trim()),
         gender: document.getElementById('gender').value,
         looking_for: document.getElementById('lookingFor').value,
-        height: document.getElementById('height').value,
+        height: document.getElementById('height')?.value || '',
         education: document.getElementById('education').value
     };
     
@@ -406,143 +95,12 @@ document.getElementById('profileForm')?.addEventListener('submit', async (e) => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
     });
-    
     const data = await response.json();
     if (data.success) {
         alert('Profile updated successfully!');
         location.reload();
     } else {
-        alert('Error: ' + data.message);
-    }
-});
-
-// Preferences Form Submission
-document.getElementById('preferencesForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('action', 'update_preferences');
-    formData.append('age_min', document.getElementById('ageMin').value);
-    formData.append('age_max', document.getElementById('ageMax').value);
-    formData.append('distance_max', document.getElementById('distanceMax').value);
-    formData.append('looking_for_pref', document.getElementById('lookingForPref').value);
-    formData.append('show_me', document.getElementById('showMe').value);
-    
-    const response = await fetch('/settings', {
-        method: 'POST',
-        body: formData
-    });
-    
-    const data = await response.json();
-    if (data.success) {
-        alert('Preferences updated successfully!');
-    } else {
-        alert('Error: ' + data.message);
-    }
-});
-
-// Notifications Form Submission
-document.getElementById('notificationsForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('action', 'update_notifications');
-    formData.append('email_likes', document.getElementById('emailLikes').checked ? 'on' : '');
-    formData.append('email_messages', document.getElementById('emailMessages').checked ? 'on' : '');
-    formData.append('email_matches', document.getElementById('emailMatches').checked ? 'on' : '');
-    
-    const response = await fetch('/settings', {
-        method: 'POST',
-        body: formData
-    });
-    
-    const data = await response.json();
-    if (data.success) {
-        alert('Notification settings updated successfully!');
-    } else {
-        alert('Error: ' + data.message);
-    }
-});
-
-// Privacy Form Submission
-document.getElementById('privacyForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('action', 'update_privacy');
-    formData.append('show_age', document.getElementById('showAge').checked ? 'on' : '');
-    formData.append('show_distance', document.getElementById('showDistance').checked ? 'on' : '');
-    formData.append('show_online_status', document.getElementById('showOnlineStatus').checked ? 'on' : '');
-    formData.append('allow_messages_from_matches', document.getElementById('allowMessagesFromMatches').checked ? 'on' : '');
-    
-    const response = await fetch('/settings', {
-        method: 'POST',
-        body: formData
-    });
-    
-    const data = await response.json();
-    if (data.success) {
-        alert('Privacy settings updated successfully!');
-    } else {
-        alert('Error: ' + data.message);
-    }
-});
-
-// Security Form Submission (Change Password)
-document.getElementById('securityForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        alert('New passwords do not match');
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('action', 'change_password');
-    formData.append('current_password', currentPassword);
-    formData.append('new_password', newPassword);
-    formData.append('confirm_password', confirmPassword);
-    
-    const response = await fetch('/settings', {
-        method: 'POST',
-        body: formData
-    });
-    
-    const data = await response.json();
-    if (data.success) {
-        alert('Password changed successfully!');
-        document.getElementById('currentPassword').value = '';
-        document.getElementById('newPassword').value = '';
-        document.getElementById('confirmPassword').value = '';
-    } else {
-        alert('Error: ' + data.message);
-    }
-});
-
-// Delete Account
-document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-        if (confirm('Please confirm again - this will permanently delete all your data.')) {
-            const formData = new FormData();
-            formData.append('action', 'delete_account');
-            
-            const response = await fetch('/settings', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const data = await response.json();
-            if (data.success) {
-                alert('Account deleted successfully');
-                window.location.href = data.redirect;
-            } else {
-                alert('Error: ' + data.message);
-            }
-        }
+        alert('Error: ' + (data.error || 'Unknown error'));
     }
 });
 </script>

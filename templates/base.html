@@ -6,7 +6,6 @@
     <title>Heartsync - {% block title %}Find Your Perfect Match{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome 6 (Free Icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -20,36 +19,6 @@
             --hs-200: #F7CCDC;
             --hs-100: #FBDFE9;
             --hs-50:  #FEF1F5;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--hs-100);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--hs-400);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--hs-600);
-        }
-        
-        /* Animation for notifications badge */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .notification-badge {
-            animation: pulse 2s infinite;
         }
     </style>
     <script>
@@ -71,261 +40,78 @@
 </head>
 <body class="bg-hs-50 font-sans text-hs-900">
 
-    <!-- Navigation Bar -->
     <nav class="bg-white border-b border-hs-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-2 hover:opacity-80 transition group">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-hs-600 to-hs-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition">
+                <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-2 hover:opacity-80 transition">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-hs-600 to-hs-400 flex items-center justify-center text-white">
                         <i class="fas fa-heart text-sm"></i>
                     </div>
-                    <span class="text-xl font-bold bg-gradient-to-r from-hs-700 to-hs-600 bg-clip-text text-transparent">Heartsync</span>
+                    <span class="text-xl font-bold text-hs-700">Heartsync</span>
                 </a>
                 
-                <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-1">
-                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-tachometer-alt text-xs"></i>
-                        <span>Dashboard</span>
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('discover') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-search text-xs"></i>
-                        <span>Discover</span>
+                    <a href="{{ url_for('discover') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-search mr-2"></i> Discover
                     </a>
-                    <a href="{{ url_for('matches') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-handshake text-xs"></i>
-                        <span>Matches</span>
+                    <a href="{{ url_for('matches') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-handshake mr-2"></i> Matches
                     </a>
-                    <a href="{{ url_for('messages') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-comment-dots text-xs"></i>
-                        <span>Messages</span>
+                    <a href="{{ url_for('messages') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-comment-dots mr-2"></i> Messages
                     </a>
-                    <a href="{{ url_for('notifications') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2 relative">
-                        <i class="fas fa-bell text-xs"></i>
-                        <span>Notifications</span>
-                        {% if unread_notifications > 0 %}
-                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center notification-badge" style="font-size: 8px;">
-                            {{ unread_notifications if unread_notifications < 10 else '9+' }}
-                        </span>
-                        {% endif %}
+                    <a href="{{ url_for('profile') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-user mr-2"></i> Profile
                     </a>
-                    <a href="{{ url_for('profile') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-user text-xs"></i>
-                        <span>Profile</span>
-                    </a>
-                    <a href="{{ url_for('settings') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition flex items-center space-x-2">
-                        <i class="fas fa-cog text-xs"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="ml-2 px-4 py-1.5 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition flex items-center space-x-2">
-                        <i class="fas fa-sign-out-alt text-xs"></i>
-                        <span>Logout</span>
+                    <a href="{{ url_for('logout') }}" class="ml-2 px-4 py-1.5 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </a>
                 </div>
                 
-                <!-- Mobile Menu Button -->
                 <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-hs-600 hover:bg-hs-100 transition">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
             
-            <!-- Mobile Navigation Menu -->
-            <div id="mobileMenu" class="hidden md:hidden pb-4 space-y-1">
-                <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-tachometer-alt w-5"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ url_for('discover') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-search w-5"></i>
-                    <span>Discover</span>
-                </a>
-                <a href="{{ url_for('matches') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-handshake w-5"></i>
-                    <span>Matches</span>
-                </a>
-                <a href="{{ url_for('messages') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-comment-dots w-5"></i>
-                    <span>Messages</span>
-                </a>
-                <a href="{{ url_for('notifications') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition relative">
-                    <i class="fas fa-bell w-5"></i>
-                    <span>Notifications</span>
-                    {% if unread_notifications > 0 %}
-                    <span class="ml-auto w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                        {{ unread_notifications }}
-                    </span>
-                    {% endif %}
-                </a>
-                <a href="{{ url_for('profile') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-user w-5"></i>
-                    <span>Profile</span>
-                </a>
-                <a href="{{ url_for('settings') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
-                    <i class="fas fa-cog w-5"></i>
-                    <span>Settings</span>
-                </a>
-                <div class="border-t border-hs-200 my-2"></div>
-                <a href="{{ url_for('logout') }}" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition">
-                    <i class="fas fa-sign-out-alt w-5"></i>
-                    <span>Logout</span>
-                </a>
+            <div id="mobileMenu" class="hidden md:hidden pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a>
+                    <a href="{{ url_for('discover') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-search mr-2"></i> Discover</a>
+                    <a href="{{ url_for('matches') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-handshake mr-2"></i> Matches</a>
+                    <a href="{{ url_for('messages') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-comment-dots mr-2"></i> Messages</a>
+                    <a href="{{ url_for('profile') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-user mr-2"></i> Profile</a>
+                    <a href="{{ url_for('logout') }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition text-center"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif category == 'danger' %}bg-red-100 text-red-700 border border-red-400{% elif category == 'warning' %}bg-yellow-100 text-yellow-700 border border-yellow-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %} flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            {% if category == 'success' %}
-                                <i class="fas fa-check-circle"></i>
-                            {% elif category == 'danger' %}
-                                <i class="fas fa-exclamation-circle"></i>
-                            {% elif category == 'warning' %}
-                                <i class="fas fa-exclamation-triangle"></i>
-                            {% else %}
-                                <i class="fas fa-info-circle"></i>
-                            {% endif %}
-                            <span>{{ message }}</span>
-                        </div>
-                        <button onclick="this.parentElement.remove()" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif category == 'danger' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                        {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
         
-        <!-- Page Content -->
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-hs-200 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <!-- Brand Column -->
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-hs-600 to-hs-400 flex items-center justify-center text-white">
-                            <i class="fas fa-heart text-sm"></i>
-                        </div>
-                        <span class="text-lg font-bold text-hs-700">Heartsync</span>
-                    </div>
-                    <p class="text-hs-600 text-sm mb-4">Find your perfect match in a safe and meaningful way. Connecting hearts, creating relationships.</p>
-                    <div class="flex space-x-3">
-                        <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
-                            <i class="fab fa-facebook-f text-sm"></i>
-                        </a>
-                        <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
-                            <i class="fab fa-twitter text-sm"></i>
-                        </a>
-                        <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
-                            <i class="fab fa-linkedin-in text-sm"></i>
-                        </a>
-                        <a href="#" class="w-8 h-8 bg-hs-100 rounded-full flex items-center justify-center text-hs-600 hover:bg-hs-600 hover:text-white transition">
-                            <i class="fab fa-instagram text-sm"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Quick Links -->
-                <div>
-                    <h3 class="font-semibold text-hs-800 mb-4 flex items-center space-x-2">
-                        <i class="fas fa-link text-xs"></i>
-                        <span>Quick Links</span>
-                    </h3>
-                    <ul class="space-y-2">
-                        <li><a href="{{ url_for('dashboard') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-chevron-right text-xs"></i><span>Dashboard</span></a></li>
-                        <li><a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-chevron-right text-xs"></i><span>Discover</span></a></li>
-                        <li><a href="{{ url_for('matches') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-chevron-right text-xs"></i><span>Matches</span></a></li>
-                        <li><a href="{{ url_for('messages') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-chevron-right text-xs"></i><span>Messages</span></a></li>
-                        <li><a href="{{ url_for('profile') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-chevron-right text-xs"></i><span>Profile</span></a></li>
-                    </ul>
-                </div>
-                
-                <!-- Support -->
-                <div>
-                    <h3 class="font-semibold text-hs-800 mb-4 flex items-center space-x-2">
-                        <i class="fas fa-headset text-xs"></i>
-                        <span>Support</span>
-                    </h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-question-circle"></i><span>Help Center</span></a></li>
-                        <li><a href="{{ url_for('feedback') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-comment"></i><span>Feedback</span></a></li>
-                        <li><a href="{{ url_for('settings') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-shield-alt"></i><span>Privacy Settings</span></a></li>
-                        <li><a href="{{ url_for('verification') }}" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-id-card"></i><span>Get Verified</span></a></li>
-                        <li><a href="#" class="text-hs-600 text-sm hover:text-hs-700 transition flex items-center space-x-2"><i class="fas fa-shield-alt"></i><span>Safety Tips</span></a></li>
-                    </ul>
-                </div>
-                
-                <!-- Contact -->
-                <div>
-                    <h3 class="font-semibold text-hs-800 mb-4 flex items-center space-x-2">
-                        <i class="fas fa-envelope text-xs"></i>
-                        <span>Contact</span>
-                    </h3>
-                    <ul class="space-y-2">
-                        <li class="flex items-center space-x-2 text-hs-600 text-sm">
-                            <i class="fas fa-envelope w-4"></i>
-                            <span>support@heartsync.com</span>
-                        </li>
-                        <li class="flex items-center space-x-2 text-hs-600 text-sm">
-                            <i class="fas fa-phone w-4"></i>
-                            <span>1-800-HEARTSYNC</span>
-                        </li>
-                        <li class="flex items-start space-x-2 text-hs-600 text-sm">
-                            <i class="fas fa-map-marker-alt w-4 mt-0.5"></i>
-                            <span>123 Love Street, Suite 100<br>New York, NY 10001</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Bottom Bar -->
-            <div class="border-t border-hs-200 mt-8 pt-6">
-                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <div class="text-hs-500 text-xs">
-                        <i class="far fa-copyright mr-1"></i> 2024 Heartsync. All rights reserved.
-                    </div>
-                    <div class="flex space-x-6">
-                        <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Terms of Service</a>
-                        <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Privacy Policy</a>
-                        <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Cookie Policy</a>
-                        <a href="#" class="text-hs-500 text-xs hover:text-hs-600 transition">Accessibility</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Mobile Menu Toggle Script -->
     <script>
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
-        
         if (mobileMenuBtn) {
             mobileMenuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
         }
-        
-        // Auto-hide flash messages after 5 seconds
-        setTimeout(() => {
-            document.querySelectorAll('.bg-green-100, .bg-red-100, .bg-yellow-100, .bg-blue-100').forEach(msg => {
-                msg.style.opacity = '0';
-                msg.style.transition = 'opacity 0.5s';
-                setTimeout(() => msg.remove(), 500);
-            });
-        }, 5000);
     </script>
-    
-    <!-- Custom JavaScript Block -->
-    {% block extra_js %}{% endblock %}
 </body>
 </html>
