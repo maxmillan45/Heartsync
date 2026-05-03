@@ -1,16 +1,15 @@
 # ============================================
-# HEARTSYNC - COMPLETE STABLE VERSION
+# HEARTSYNC - COMPLETE STABLE VERSION (NO PILLOW)
 # ============================================
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
-from PIL import Image
 import sqlite3
 import json
+import os
 from datetime import datetime, timedelta
 from functools import wraps
-import os
 
 # ============================================
 # CONFIG
@@ -22,7 +21,7 @@ app.secret_key = 'super-secret-key'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 Session(app)
 
@@ -314,7 +313,6 @@ def register():
 @login_required
 def setup_profile():
     if request.method == 'POST':
-        # Get avatar URL from form or use default
         avatar_url = request.form.get('avatar_url', '/static/uploads/avatars/default.jpg')
         
         data = {
@@ -330,7 +328,6 @@ def setup_profile():
             'height': request.form.get('height')
         }
         
-        # Add custom interests
         custom = request.form.get('custom_interests', '')
         if custom:
             data['interests'].extend([i.strip() for i in custom.split(',') if i.strip()])
@@ -361,7 +358,7 @@ def view_other_profile(email):
     is_match = email in get_matches(session['user_id'])
     return render_template('view_profile.html', user=profile_data, is_match=is_match)
 
-# ---------- API - AVATAR UPLOAD ----------
+# ---------- UPLOAD AVATAR (Without Pillow) ----------
 
 @app.route('/api/upload-avatar', methods=['POST'])
 @login_required
@@ -375,22 +372,18 @@ def upload_avatar():
             return jsonify({'success': False, 'message': 'No file selected'})
         
         if file and allowed_file(file.filename):
-            # Create unique filename
             ext = file.filename.rsplit('.', 1)[1].lower()
             filename = f"avatar_{session['user_id']}_{datetime.now().timestamp()}.{ext}"
             filepath = os.path.join('static/uploads/avatars', filename)
             
-            # Process and save image
-            img = Image.open(file)
-            img = img.resize((300, 300))
-            img.save(filepath, optimize=True, quality=85)
+            # Save the file directly without processing
+            file.save(filepath)
             
             avatar_url = f'/static/uploads/avatars/{filename}'
             
-            # Update profile if it exists
+            # Update profile
             profile = get_profile(session['user_id'])
             if profile:
-                profile['avatar_url'] = avatar_url
                 with get_db() as conn:
                     conn.execute("UPDATE profiles SET avatar_url = ? WHERE email = ?", 
                                 (avatar_url, session['user_id']))
@@ -414,10 +407,11 @@ def dashboard():
     recent = []
     for match in matches[:5]:
         p = get_profile(match)
-        if p:
+        u = get_user(match)
+        if p and u:
             recent.append({
                 'email': match,
-                'name': p.get('full_name', 'Unknown'),
+                'name': u.get('full_name', 'Unknown'),
                 'avatar_url': p.get('avatar_url', '/static/uploads/avatars/default.jpg'),
                 'location': p.get('location', 'Unknown')
             })
@@ -462,7 +456,7 @@ def discover():
 
         users_to_show.append({
             'email': u['email'],
-            'name': u['full_name'],
+            'name': u.get('full_name', 'Unknown'),
             'age': profile.get('age'),
             'location': profile.get('location'),
             'bio': profile.get('bio', '')[:100],
@@ -503,10 +497,11 @@ def matches():
     matches_list = []
     for match_email in get_matches(session['user_id']):
         profile = get_profile(match_email)
-        if profile:
+        user = get_user(match_email)
+        if profile and user:
             matches_list.append({
                 'email': match_email,
-                'name': profile.get('full_name', 'Unknown'),
+                'name': user.get('full_name', 'Unknown'),
                 'avatar_url': profile.get('avatar_url', '/static/uploads/avatars/default.jpg'),
                 'age': profile.get('age', '?'),
                 'location': profile.get('location', 'Unknown')
@@ -521,11 +516,11 @@ def messages():
     
     for match_email in get_matches(session['user_id']):
         profile = get_profile(match_email)
-        user = get_user(match_email)  # Get the user to access full_name
+        user = get_user(match_email)
         if profile and user:
             matches_list.append({
                 'email': match_email,
-                'name': user.get('full_name', 'Unknown'),  # Get name from users table
+                'name': user.get('full_name', 'Unknown'),
                 'avatar_url': profile.get('avatar_url', '/static/uploads/avatars/default.jpg')
             })
     
@@ -578,14 +573,6 @@ def get_messages_api():
     messages = get_messages(chat_id)
     return jsonify({'messages': messages})
 
-# ---------- SETTINGS ----------
-
-@app.route('/settings')
-@login_required
-def settings():
-    profile_data = get_profile(session['user_id']) or {}
-    return render_template('settings.html', user=profile_data, user_email=session['user_id'])
-
 @app.route('/api/update-profile', methods=['POST'])
 @login_required
 def update_profile():
@@ -593,10 +580,8 @@ def update_profile():
         data = request.json
         profile = get_profile(session['user_id']) or {}
         profile.update({
-            'full_name': data.get('full_name', profile.get('full_name')),
             'age': data.get('age', profile.get('age')),
             'location': data.get('location', profile.get('location')),
-            'occupation': data.get('occupation', profile.get('occupation')),
             'bio': data.get('bio', profile.get('bio')),
             'interests': data.get('interests', profile.get('interests', [])),
             'gender': data.get('gender', profile.get('gender')),
@@ -609,7 +594,11 @@ def update_profile():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-# ---------- LOGOUT ----------
+@app.route('/settings')
+@login_required
+def settings():
+    profile_data = get_profile(session['user_id']) or {}
+    return render_template('settings.html', user=profile_data, user_email=session['user_id'])
 
 @app.route('/logout')
 def logout():
@@ -618,9 +607,9 @@ def logout():
     return redirect(url_for('login'))
 
 # ============================================
-# RUN
+# RUN THE APP
 # ============================================
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
