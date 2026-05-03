@@ -9,17 +9,38 @@
     {% if matches %}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {% for match in matches %}
-        <a href="{{ url_for('messages') }}?match={{ match.email }}" class="flex items-center space-x-3 p-4 bg-hs-50 rounded-lg hover:bg-hs-100 transition">
-            <img src="{{ match.avatar_url }}" class="w-12 h-12 rounded-full object-cover">
-            <div>
-                <p class="font-semibold text-hs-900">{{ match.name }}</p>
-                <p class="text-sm text-hs-600">{{ match.age }} years, {{ match.location }}</p>
+        <div class="flex items-center justify-between p-4 bg-hs-50 rounded-lg hover:bg-hs-100 transition">
+            <div class="flex items-center space-x-3">
+                <img src="{{ match.avatar_url }}" class="w-12 h-12 rounded-full object-cover">
+                <div>
+                    <p class="font-semibold text-hs-900">{{ match.name }}</p>
+                    <p class="text-sm text-hs-600">{{ match.age }} years, {{ match.location }}</p>
+                </div>
             </div>
-        </a>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('view_other_profile', email=match.email) }}" 
+                   class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-300 transition">
+                    <i class="fas fa-user mr-1"></i> Profile
+                </a>
+                <a href="{{ url_for('messages') }}?match={{ match.email }}" 
+                   class="bg-hs-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-hs-700 transition">
+                    <i class="fas fa-comment mr-1"></i> Message
+                </a>
+            </div>
+        </div>
         {% endfor %}
     </div>
     {% else %}
-    <p class="text-center text-hs-600 py-8">No matches yet. Keep liking profiles!</p>
+    <div class="text-center py-12">
+        <div class="w-20 h-20 bg-hs-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-handshake text-3xl text-hs-500"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-hs-800 mb-2">No matches yet</h3>
+        <p class="text-hs-600 mb-4">Start liking profiles to find your perfect match</p>
+        <a href="{{ url_for('discover') }}" class="bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
+            <i class="fas fa-search mr-2"></i> Discover People
+        </a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

@@ -22,7 +22,7 @@
                 <img src="{{ user.avatar_url }}" alt="{{ user.name }}" class="w-full h-56 object-cover">
                 {% if user.compatibility %}
                 <span class="absolute bottom-3 left-3 bg-hs-600 text-white text-xs px-2 py-1 rounded-full">
-                    {{ user.compatibility }}% Match
+                    <i class="fas fa-chart-line mr-1"></i> {{ user.compatibility }}% Match
                 </span>
                 {% endif %}
             </div>
@@ -54,7 +54,11 @@
                             data-email="{{ user.email }}">
                         <i class="fas fa-heart mr-1"></i> Like
                     </button>
-                    <button class="pass-btn flex-1 border border-hs-600 text-hs-600 px-3 py-2 rounded-lg text-sm hover:bg-hs-50 transition"
+                    <a href="{{ url_for('view_other_profile', email=user.email) }}" 
+                       class="flex-1 border border-hs-600 text-hs-600 px-3 py-2 rounded-lg text-sm text-center hover:bg-hs-50 transition">
+                        <i class="fas fa-user mr-1"></i> View Profile
+                    </a>
+                    <button class="pass-btn flex-1 border border-red-500 text-red-500 px-3 py-2 rounded-lg text-sm hover:bg-red-50 transition"
                             data-email="{{ user.email }}">
                         <i class="fas fa-times mr-1"></i> Pass
                     </button>
@@ -78,7 +82,6 @@
 </div>
 
 <script>
-// Like button functionality
 document.querySelectorAll('.like-btn').forEach(btn => {
     btn.addEventListener('click', async function() {
         const email = this.dataset.email;
@@ -114,7 +117,6 @@ document.querySelectorAll('.like-btn').forEach(btn => {
     });
 });
 
-// Pass button functionality
 document.querySelectorAll('.pass-btn').forEach(btn => {
     btn.addEventListener('click', async function() {
         const email = this.dataset.email;
