@@ -1,66 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}My Matches - Heartsync{% endblock %}
+{% block title %}Matches - Heartsync{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-2xl shadow-xl border border-hs-200 overflow-hidden">
-    <div class="bg-gradient-to-r from-hs-600 to-hs-500 px-6 py-4">
-        <h1 class="text-2xl font-bold text-white">Your Matches</h1>
-        <p class="text-hs-100 text-sm mt-1">Connect and start meaningful conversations</p>
-    </div>
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
+    <h1 class="text-2xl font-bold text-hs-900 mb-6">Your Matches</h1>
     
-    {% if matches and matches|length > 0 %}
-    <div class="divide-y divide-hs-100">
+    {% if matches %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {% for match in matches %}
-        <div class="hover:bg-hs-50 transition-colors">
-            <a href="{{ url_for('messages') }}?match={{ match.email }}" class="block p-4">
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <img src="{{ match.avatar_url }}" alt="{{ match.name }}" 
-                             class="w-16 h-16 rounded-full object-cover border-2 border-hs-300">
-                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                    </div>
-                    
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-baseline">
-                            <h3 class="text-lg font-semibold text-hs-900 truncate">{{ match.name }}</h3>
-                            <span class="text-xs text-hs-500">{{ match.age }} years</span>
-                        </div>
-                        <p class="text-sm text-hs-600 truncate">{{ match.location }}</p>
-                        {% if match.last_message %}
-                        <p class="text-xs text-hs-500 mt-1 truncate">
-                            <span class="font-medium">Last message:</span> {{ match.last_message.text[:50] }}
-                        </p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="flex flex-col items-end space-y-2">
-                        {% if match.last_message %}
-                        <span class="text-xs text-hs-500">
-                            {{ match.last_message.timestamp.split('T')[0] }}
-                        </span>
-                        {% endif %}
-                        <button class="bg-hs-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-hs-700 transition">
-                            Message
-                        </button>
-                    </div>
-                </div>
-            </a>
-        </div>
+        <a href="{{ url_for('messages') }}?match={{ match.email }}" class="flex items-center space-x-3 p-4 bg-hs-50 rounded-lg hover:bg-hs-100 transition">
+            <img src="{{ match.avatar_url }}" class="w-12 h-12 rounded-full object-cover">
+            <div>
+                <p class="font-semibold text-hs-900">{{ match.name }}</p>
+                <p class="text-sm text-hs-600">{{ match.age }} years, {{ match.location }}</p>
+            </div>
+        </a>
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-16">
-        <div class="w-20 h-20 bg-hs-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-3xl text-hs-500">(M)</span>
-        </div>
-        <h3 class="text-xl font-semibold text-hs-800 mb-2">No matches yet</h3>
-        <p class="text-hs-600 mb-6">Start liking profiles to find your perfect match</p>
-        <a href="{{ url_for('discover') }}" 
-           class="inline-block bg-hs-600 text-white px-6 py-2 rounded-lg hover:bg-hs-700 transition">
-            Discover People
-        </a>
-    </div>
+    <p class="text-center text-hs-600 py-8">No matches yet. Keep liking profiles!</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -1,155 +1,144 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heartsync - {% block title %}Find Your Perfect Match{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- React Icons CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/react-icons@5.0.1/package.json"></script>
+    <!-- Font Awesome as alternative (works well with Tailwind) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --hs-900: #2D0A1A;
+            --hs-800: #5C1233;
+            --hs-700: #8C1B4D;
+            --hs-600: #B52360;
+            --hs-500: #D93B78;
+            --hs-400: #E8689A;
+            --hs-300: #F0A0BF;
+            --hs-200: #F7CCDC;
+            --hs-100: #FBDFE9;
+            --hs-50:  #FEF1F5;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'sans': ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        hs: {
+                            900: '#2D0A1A', 800: '#5C1233', 700: '#8C1B4D',
+                            600: '#B52360', 500: '#D93B78', 400: '#E8689A',
+                            300: '#F0A0BF', 200: '#F7CCDC', 100: '#FBDFE9', 50: '#FEF1F5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-hs-50 font-sans text-hs-900">
 
-{% block title %}Dashboard - Heartsync{% endblock %}
+    <nav class="bg-white border-b border-hs-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-2 hover:opacity-80 transition">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-hs-600 to-hs-400 flex items-center justify-center text-white font-bold text-sm">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <span class="text-xl font-bold text-hs-700">Heartsync</span>
+                </a>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('discover') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-search mr-2"></i> Discover
+                    </a>
+                    <a href="{{ url_for('matches') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-handshake mr-2"></i> Matches
+                    </a>
+                    <a href="{{ url_for('messages') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-comment-dots mr-2"></i> Messages
+                    </a>
+                    <a href="{{ url_for('notifications') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-bell mr-2"></i> Notifications
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-user mr-2"></i> Profile
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="ml-2 px-4 py-1.5 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-hs-600 hover:bg-hs-100 transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Navigation -->
+            <div id="mobileMenu" class="hidden md:hidden pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('discover') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-search mr-2"></i> Discover
+                    </a>
+                    <a href="{{ url_for('matches') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-handshake mr-2"></i> Matches
+                    </a>
+                    <a href="{{ url_for('messages') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-comment-dots mr-2"></i> Messages
+                    </a>
+                    <a href="{{ url_for('notifications') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-bell mr-2"></i> Notifications
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-user mr-2"></i> Profile
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition text-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-{% block content %}
-<div class="space-y-6">
-    <!-- Welcome Section -->
-    <div class="bg-gradient-to-r from-hs-600 to-hs-500 rounded-2xl p-6 text-white">
-        <h1 class="text-2xl font-bold">Welcome back, {{ user.full_name }}!</h1>
-        <p class="text-hs-100 mt-1">Your journey to find meaningful connections continues</p>
-    </div>
-    
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl p-4 border border-hs-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-hs-500 text-sm">Profile Views</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.profile_views }}</p>
-                </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <span class="text-hs-600 text-xl">(E)</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-4 border border-hs-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-hs-500 text-sm">Likes Received</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.likes_received }}</p>
-                </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <span class="text-hs-600 text-xl">(H)</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-4 border border-hs-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-hs-500 text-sm">Matches</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.matches_count }}</p>
-                </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <span class="text-hs-600 text-xl">(M)</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-4 border border-hs-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-hs-500 text-sm">Profile Completion</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ completion_percentage }}%</p>
-                </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <span class="text-hs-600 text-xl">(P)</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Recent Activity & Suggestions -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Matches -->
-        <div class="bg-white rounded-xl border border-hs-200 overflow-hidden">
-            <div class="p-4 border-b border-hs-200">
-                <h2 class="font-semibold text-hs-900">Recent Matches</h2>
-                <p class="text-xs text-hs-500">People you've connected with recently</p>
-            </div>
-            <div class="divide-y divide-hs-100">
-                {% if recent_matches %}
-                    {% for match in recent_matches[:5] %}
-                    <div class="p-3 hover:bg-hs-50 transition">
-                        <a href="{{ url_for('messages') }}?match={{ match.email }}" class="flex items-center space-x-3">
-                            <img src="{{ match.avatar_url }}" class="w-10 h-10 rounded-full object-cover">
-                            <div class="flex-1">
-                                <p class="font-medium text-hs-900">{{ match.name }}</p>
-                                <p class="text-xs text-hs-500">{{ match.location }}</p>
-                            </div>
-                            <button class="text-hs-600 text-sm">Message</button>
-                        </a>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif category == 'danger' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %}">
+                        <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                        {{ message }}
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <p class="text-hs-500">No matches yet</p>
-                        <a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:underline">Discover people</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         
-        <!-- Suggested For You -->
-        <div class="bg-white rounded-xl border border-hs-200 overflow-hidden">
-            <div class="p-4 border-b border-hs-200">
-                <h2 class="font-semibold text-hs-900">Suggested For You</h2>
-                <p class="text-xs text-hs-500">Based on your interests</p>
-            </div>
-            <div class="divide-y divide-hs-100">
-                {% if suggestions %}
-                    {% for suggestion in suggestions[:5] %}
-                    <div class="p-3 hover:bg-hs-50 transition">
-                        <div class="flex items-center space-x-3">
-                            <img src="{{ suggestion.avatar_url }}" class="w-10 h-10 rounded-full object-cover">
-                            <div class="flex-1">
-                                <p class="font-medium text-hs-900">{{ suggestion.name }}</p>
-                                <p class="text-xs text-hs-500">{{ suggestion.location }}</p>
-                                <div class="flex items-center space-x-2 mt-1">
-                                    <span class="text-xs text-hs-600">{{ suggestion.compatibility }}% match</span>
-                                    {% if suggestion.verified %}
-                                    <span class="text-xs bg-green-100 text-green-700 px-1 rounded">Verified</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <a href="{{ url_for('view_other_profile', email=suggestion.email) }}" 
-                               class="text-hs-600 text-sm hover:underline">View</a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <p class="text-hs-500">No suggestions available</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="{{ url_for('discover') }}" 
-           class="bg-hs-600 text-white rounded-xl p-4 text-center hover:bg-hs-700 transition">
-            <div class="text-2xl mb-1">(D)</div>
-            <p class="font-semibold">Discover People</p>
-            <p class="text-xs text-hs-200 mt-1">Find your perfect match</p>
-        </a>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
         
-        <a href="{{ url_for('profile') }}" 
-           class="bg-hs-100 text-hs-800 rounded-xl p-4 text-center hover:bg-hs-200 transition">
-            <div class="text-2xl mb-1">(P)</div>
-            <p class="font-semibold">Complete Profile</p>
-            <p class="text-xs text-hs-600 mt-1">Increase your match chances</p>
-        </a>
-        
-        <a href="{{ url_for('settings') }}" 
-           class="bg-hs-100 text-hs-800 rounded-xl p-4 text-center hover:bg-hs-200 transition">
-            <div class="text-2xl mb-1">(S)</div>
-            <p class="font-semibold">Settings</p>
-            <p class="text-xs text-hs-600 mt-1">Customize your experience</p>
-        </a>
-    </div>
-</div>
-{% endblock %}
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
