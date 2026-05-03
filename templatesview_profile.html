@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}View Profile - Heartsync{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
+    <h1 class="text-2xl font-bold">{{ user.full_name or 'User Profile' }}</h1>
+    {% if is_match %}
+    <a href="{{ url_for('messages') }}?match={{ user_email }}">Send Message</a>
+    {% endif %}
+    <div>
+        <img src="{{ user.avatar_url or '/static/uploads/avatars/default.jpg' }}" alt="Profile">
+        <p>{{ user.location or 'Location not specified' }}</p>
+        <p>{{ user.age or 'Age not specified' }} years old</p>
+    </div>
+    <div>
+        <h3>About</h3>
+        <p>{{ user.bio or 'No bio yet' }}</p>
+        <h3>Interests</h3>
+        {% for interest in user.interests %}
+        <span>{{ interest }}</span>
+        {% endfor %}
+    </div>
+    <a href="{{ url_for('discover') }}">Back to Discover</a>
+</div>
+{% endblock %}
