@@ -521,10 +521,11 @@ def messages():
     
     for match_email in get_matches(session['user_id']):
         profile = get_profile(match_email)
-        if profile:
+        user = get_user(match_email)  # Get the user to access full_name
+        if profile and user:
             matches_list.append({
                 'email': match_email,
-                'name': profile.get('full_name', 'Unknown'),
+                'name': user.get('full_name', 'Unknown'),  # Get name from users table
                 'avatar_url': profile.get('avatar_url', '/static/uploads/avatars/default.jpg')
             })
     
@@ -535,11 +536,12 @@ def messages():
         chat_id = get_chat_id(session['user_id'], selected)
         current_messages = get_messages(chat_id)
         sel_profile = get_profile(selected)
-        if sel_profile:
+        sel_user = get_user(selected)
+        if sel_profile and sel_user:
             selected_info = {
                 'email': selected,
-                'name': sel_profile.get('full_name'),
-                'avatar_url': sel_profile.get('avatar_url')
+                'name': sel_user.get('full_name', 'Unknown'),
+                'avatar_url': sel_profile.get('avatar_url', '/static/uploads/avatars/default.jpg')
             }
     
     return render_template('messages.html', 
@@ -620,4 +622,5 @@ def logout():
 # ============================================
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
