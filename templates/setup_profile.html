@@ -1,138 +1,144 @@
 {% extends "base.html" %}
 
-{% block title %}Complete Your Profile - Heartsync{% endblock %}
+{% block title %}Setup Profile - Heartsync{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
-        <div class="text-center mb-8">
-            <div class="inline-block bg-hs-100 rounded-full px-4 py-2 mb-4">
-                <span class="text-hs-700 font-semibold">{{ category.icon }} {{ category.name }}</span>
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200 max-w-3xl mx-auto">
+    <div class="text-center mb-8">
+        <i class="fas fa-user-edit text-4xl text-hs-600 mb-3"></i>
+        <h1 class="text-2xl font-bold text-hs-900">Complete Your Profile</h1>
+        <p class="text-hs-600 mt-2">Tell others about yourself</p>
+    </div>
+    
+    <form id="profileForm" method="POST" class="space-y-6">
+        <!-- Avatar Upload Section -->
+        <div class="text-center">
+            <label class="block text-hs-800 font-medium mb-3">Profile Picture</label>
+            <div class="relative inline-block">
+                <img id="avatarPreview" src="{{ url_for('static', filename='uploads/avatars/default.jpg') }}" 
+                     class="w-32 h-32 rounded-full object-cover border-4 border-hs-200">
+                <button type="button" onclick="document.getElementById('avatarInput').click()" 
+                        class="absolute bottom-0 right-0 bg-hs-600 text-white p-2 rounded-full hover:bg-hs-700 transition">
+                    <i class="fas fa-camera text-sm"></i>
+                </button>
+                <input type="file" id="avatarInput" accept="image/*" class="hidden">
             </div>
-            <h1 class="text-3xl font-bold text-hs-900 mb-2">Complete Your Profile</h1>
-            <p class="text-hs-600">Tell us more about yourself to find better matches</p>
+            <p class="text-xs text-hs-500 mt-2">Click the camera icon to upload a photo</p>
         </div>
         
-        <form method="POST" class="space-y-6">
-            <!-- Personal Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Personal Information</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Full Name</label>
-                        <input type="text" name="full_name" required 
-                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Age</label>
-                            <input type="number" name="age" required min="18" max="100"
-                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Location</label>
-                            <input type="text" name="location" required placeholder="City, Country"
-                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Occupation</label>
-                        <input type="text" name="occupation" 
-                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">About Me</label>
-                        <textarea name="bio" rows="4" 
-                                  placeholder="Tell potential matches about yourself, your interests, and what you're looking for..."
-                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
-                    </div>
-                </div>
+                <label class="block text-hs-800 font-medium mb-2">Age</label>
+                <input type="number" name="age" required class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
             </div>
-            
-            <!-- Interests -->
             <div>
-                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Interests</h2>
-                <div>
-                    <label class="block text-hs-800 font-medium mb-2">Select your interests</label>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3">
-                        {% for interest in suggested_interests %}
-                        <label class="flex items-center space-x-2">
-                            <input type="checkbox" name="interests" value="{{ interest }}" class="rounded border-hs-300 text-hs-600 focus:ring-hs-500">
-                            <span class="text-hs-700">{{ interest }}</span>
-                        </label>
-                        {% endfor %}
-                    </div>
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Other interests (comma-separated)</label>
-                        <input type="text" name="custom_interests" 
-                               placeholder="e.g., Photography, Hiking, Cooking"
-                               class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                    </div>
-                </div>
+                <label class="block text-hs-800 font-medium mb-2">Location</label>
+                <input type="text" name="location" required placeholder="City, State" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
             </div>
-            
-            <!-- Basic Information -->
             <div>
-                <h2 class="text-xl font-semibold text-hs-800 border-b-2 border-hs-200 pb-2 mb-4">Basic Information</h2>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Gender</label>
-                            <select name="gender" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Non-binary">Non-binary</option>
-                                <option value="Prefer not to say">Prefer not to say</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Looking For</label>
-                            <select name="looking_for" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                                <option value="Long-term relationship">Long-term relationship</option>
-                                <option value="Casual dating">Casual dating</option>
-                                <option value="Friendship">Friendship</option>
-                                <option value="Not sure yet">Not sure yet</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Height</label>
-                            <input type="text" name="height" placeholder="e.g., 5'9\""
-                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-hs-800 font-medium mb-2">Education</label>
-                            <input type="text" name="education" placeholder="e.g., Bachelor's Degree"
-                                   class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Dating Goals</label>
-                        <textarea name="dating_goals" rows="2" 
-                                  placeholder="What are you hoping to find on Heartsync?"
-                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-hs-800 font-medium mb-2">Deal Breakers (Optional)</label>
-                        <textarea name="deal_breakers" rows="2" 
-                                  placeholder="Things that are important for you in a partner"
-                                  class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 focus:border-hs-500 outline-none resize-none"></textarea>
-                    </div>
-                </div>
+                <label class="block text-hs-800 font-medium mb-2">Occupation</label>
+                <input type="text" name="occupation" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
             </div>
-            
-            <button type="submit" 
-                    class="w-full bg-hs-600 text-white py-3 rounded-lg font-semibold hover:bg-hs-700 transition">
-                Complete Profile Setup
-            </button>
-        </form>
-    </div>
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Education</label>
+                <input type="text" name="education" class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none">
+            </div>
+        </div>
+        
+        <div>
+            <label class="block text-hs-800 font-medium mb-2">Bio</label>
+            <textarea name="bio" rows="4" placeholder="Tell others about yourself..." class="w-full px-4 py-2 border border-hs-200 rounded-lg focus:ring-2 focus:ring-hs-500 outline-none resize-none"></textarea>
+        </div>
+        
+        <div>
+            <label class="block text-hs-800 font-medium mb-2">Interests</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <label><input type="checkbox" name="interests" value="Reading" class="mr-2"> Reading</label>
+                <label><input type="checkbox" name="interests" value="Music" class="mr-2"> Music</label>
+                <label><input type="checkbox" name="interests" value="Travel" class="mr-2"> Travel</label>
+                <label><input type="checkbox" name="interests" value="Sports" class="mr-2"> Sports</label>
+                <label><input type="checkbox" name="interests" value="Movies" class="mr-2"> Movies</label>
+                <label><input type="checkbox" name="interests" value="Cooking" class="mr-2"> Cooking</label>
+            </div>
+            <input type="text" name="custom_interests" placeholder="Other interests (comma separated)" class="mt-3 w-full px-4 py-2 border border-hs-200 rounded-lg">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Gender</label>
+                <select name="gender" class="w-full px-4 py-2 border border-hs-200 rounded-lg">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Looking For</label>
+                <select name="looking_for" class="w-full px-4 py-2 border border-hs-200 rounded-lg">
+                    <option value="Long-term relationship">Long-term relationship</option>
+                    <option value="Casual dating">Casual dating</option>
+                    <option value="Friendship">Friendship</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-hs-800 font-medium mb-2">Height</label>
+                <input type="text" name="height" placeholder="e.g., 5'9\"" class="w-full px-4 py-2 border border-hs-200 rounded-lg">
+            </div>
+        </div>
+        
+        <button type="submit" class="w-full bg-hs-600 text-white py-3 rounded-lg font-semibold hover:bg-hs-700 transition">
+            <i class="fas fa-check-circle mr-2"></i> Complete Profile
+        </button>
+    </form>
 </div>
+
+<script>
+// Avatar upload preview and upload
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Preview the image
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('avatarPreview').src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+        
+        // Upload the image
+        const formData = new FormData();
+        formData.append('avatar', file);
+        
+        fetch('/api/upload-avatar', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Avatar uploaded successfully');
+                // Store the URL to be saved with the form
+                sessionStorage.setItem('avatarUrl', data.url);
+            } else {
+                alert('Error uploading image: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error uploading image');
+        });
+    }
+});
+
+// Save avatar URL when form submits
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    const avatarUrl = sessionStorage.getItem('avatarUrl');
+    if (avatarUrl) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'avatar_url';
+        hiddenInput.value = avatarUrl;
+        this.appendChild(hiddenInput);
+    }
+});
+</script>
 {% endblock %}

@@ -7,7 +7,9 @@
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-hs-600 to-hs-500 rounded-2xl p-6 text-white">
         <div class="flex items-center space-x-3">
-            <i class="fas fa-smile-wink text-3xl"></i>
+            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                <i class="fas fa-heart text-2xl"></i>
+            </div>
             <div>
                 <h1 class="text-2xl font-bold">Welcome back, {{ user.full_name or session.user_name }}!</h1>
                 <p class="text-hs-100 mt-1">Your journey to find meaningful connections continues</p>
@@ -21,10 +23,22 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-hs-500 text-sm">Profile Views</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.profile_views|default(0) }}</p>
+                    <p class="text-2xl font-bold text-hs-900">{{ stats.likes_received }}</p>
                 </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-eye text-hs-600 text-xl"></i>
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-eye text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 border border-hs-200 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-hs-500 text-sm">Likes Sent</p>
+                    <p class="text-2xl font-bold text-hs-900">{{ stats.likes_sent }}</p>
+                </div>
+                <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-heart text-pink-600 text-xl"></i>
                 </div>
             </div>
         </div>
@@ -33,10 +47,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-hs-500 text-sm">Likes Received</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.likes_received|default(0) }}</p>
+                    <p class="text-2xl font-bold text-hs-900">{{ stats.likes_received }}</p>
                 </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-heart text-hs-600 text-xl"></i>
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-heart text-green-600 text-xl"></i>
                 </div>
             </div>
         </div>
@@ -45,99 +59,79 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-hs-500 text-sm">Matches</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ stats.matches_count|default(0) }}</p>
+                    <p class="text-2xl font-bold text-hs-900">{{ stats.matches }}</p>
                 </div>
-                <div class="w-10 h-10 bg-hs-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-handshake text-hs-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-xl p-4 border border-hs-200 shadow-sm">
-            <div>
-                <div class="flex items-center justify-between">
-                    <p class="text-hs-500 text-sm">Profile Completion</p>
-                    <p class="text-2xl font-bold text-hs-900">{{ completion_percentage|default(0) }}%</p>
-                </div>
-                <div class="mt-2 h-2 bg-hs-200 rounded-full overflow-hidden">
-                    <div class="h-full bg-hs-600 rounded-full transition-all duration-500" style="width: {{ completion_percentage|default(0) }}%"></div>
+                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-handshake text-purple-600 text-xl"></i>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Recent Matches & Suggestions -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Recent Matches -->
-        <div class="bg-white rounded-xl border border-hs-200 overflow-hidden shadow-sm">
-            <div class="p-4 border-b border-hs-200 bg-hs-50">
-                <h2 class="font-semibold text-hs-900"><i class="fas fa-clock mr-2"></i> Recent Matches</h2>
-            </div>
-            <div class="divide-y divide-hs-100">
-                {% if recent_matches and recent_matches|length > 0 %}
-                    {% for match in recent_matches %}
-                    <div class="p-3 hover:bg-hs-50 transition">
-                        <a href="{{ url_for('messages') }}?match={{ match.email }}" class="flex items-center space-x-3">
-                            <img src="{{ match.avatar_url }}" class="w-10 h-10 rounded-full object-cover">
-                            <div class="flex-1">
-                                <p class="font-medium text-hs-900">{{ match.name }}</p>
-                                <p class="text-xs text-hs-500"><i class="fas fa-map-marker-alt mr-1"></i> {{ match.location }}</p>
-                            </div>
-                            <button class="text-hs-600 text-sm"><i class="fas fa-comment"></i> Message</button>
-                        </a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <i class="fas fa-users text-4xl text-hs-300 mb-3"></i>
-                        <p class="text-hs-500">No matches yet</p>
-                        <a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:underline mt-2 inline-block"><i class="fas fa-search mr-1"></i> Discover People</a>
-                    </div>
-                {% endif %}
-            </div>
+    <!-- Profile Completion -->
+    <div class="bg-white rounded-xl p-6 border border-hs-200 shadow-sm">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-semibold text-hs-900">Profile Completion</h3>
+            <span class="text-hs-600 font-bold">{{ completion_percentage }}%</span>
         </div>
-        
-        <!-- Suggested For You -->
-        <div class="bg-white rounded-xl border border-hs-200 overflow-hidden shadow-sm">
-            <div class="p-4 border-b border-hs-200 bg-hs-50">
-                <h2 class="font-semibold text-hs-900"><i class="fas fa-lightbulb mr-2"></i> Suggested For You</h2>
-            </div>
-            <div class="divide-y divide-hs-100">
-                {% if suggestions and suggestions|length > 0 %}
-                    {% for suggestion in suggestions %}
-                    <div class="p-3 hover:bg-hs-50 transition">
-                        <a href="{{ url_for('view_other_profile', email=suggestion.email) }}" class="flex items-center space-x-3">
-                            <img src="{{ suggestion.avatar_url }}" class="w-10 h-10 rounded-full object-cover">
-                            <div class="flex-1">
-                                <p class="font-medium text-hs-900">{{ suggestion.name }}</p>
-                                <p class="text-xs text-hs-500"><i class="fas fa-map-marker-alt mr-1"></i> {{ suggestion.location }}</p>
-                                <p class="text-xs text-hs-600 mt-1"><i class="fas fa-chart-line mr-1"></i> {{ suggestion.compatibility }}% match</p>
-                            </div>
-                            <i class="fas fa-chevron-right text-hs-400"></i>
-                        </a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="p-8 text-center">
-                        <i class="fas fa-magic text-4xl text-hs-300 mb-3"></i>
-                        <p class="text-hs-500">No suggestions available</p>
-                        <a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:underline mt-2 inline-block"><i class="fas fa-search mr-1"></i> Discover People</a>
-                    </div>
-                {% endif %}
-            </div>
+        <div class="h-3 bg-hs-200 rounded-full overflow-hidden">
+            <div class="h-full bg-hs-600 rounded-full transition-all duration-500" style="width: {{ completion_percentage }}%"></div>
+        </div>
+        {% if completion_percentage < 100 %}
+        <p class="text-xs text-hs-500 mt-2">
+            <i class="fas fa-info-circle mr-1"></i> Complete your profile to get more matches
+        </p>
+        {% endif %}
+    </div>
+    
+    <!-- Recent Matches -->
+    <div class="bg-white rounded-xl border border-hs-200 overflow-hidden shadow-sm">
+        <div class="p-4 border-b border-hs-200 bg-hs-50">
+            <h2 class="font-semibold text-hs-900">
+                <i class="fas fa-clock mr-2"></i> Recent Matches
+            </h2>
+        </div>
+        <div class="divide-y divide-hs-100">
+            {% if recent_matches %}
+                {% for match in recent_matches %}
+                <div class="p-3 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('messages') }}?match={{ match.email }}" class="flex items-center space-x-3">
+                        <img src="{{ match.avatar_url }}" class="w-10 h-10 rounded-full object-cover">
+                        <div class="flex-1">
+                            <p class="font-medium text-hs-900">{{ match.name }}</p>
+                            <p class="text-xs text-hs-500"><i class="fas fa-map-marker-alt mr-1"></i> {{ match.location }}</p>
+                        </div>
+                        <button class="text-hs-600 text-sm hover:text-hs-700">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-users text-4xl text-hs-300 mb-3"></i>
+                    <p class="text-hs-500">No matches yet</p>
+                    <a href="{{ url_for('discover') }}" class="text-hs-600 text-sm hover:underline mt-2 inline-block">
+                        <i class="fas fa-search mr-1"></i> Discover People
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
     
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <a href="{{ url_for('discover') }}" class="bg-hs-600 text-white rounded-xl p-4 text-center hover:bg-hs-700 transition flex items-center justify-center space-x-2">
-            <i class="fas fa-search"></i><span> Discover People</span>
+            <i class="fas fa-search text-xl"></i>
+            <span class="font-semibold">Discover People</span>
         </a>
         <a href="{{ url_for('profile') }}" class="bg-hs-100 text-hs-800 rounded-xl p-4 text-center hover:bg-hs-200 transition flex items-center justify-center space-x-2">
-            <i class="fas fa-user-edit"></i><span> Complete Profile</span>
+            <i class="fas fa-user-edit text-xl"></i>
+            <span class="font-semibold">Edit Profile</span>
         </a>
-        <a href="{{ url_for('settings') }}" class="bg-hs-100 text-hs-800 rounded-xl p-4 text-center hover:bg-hs-200 transition flex items-center justify-center space-x-2">
-            <i class="fas fa-cog"></i><span> Settings</span>
+        <a href="{{ url_for('messages') }}" class="bg-hs-100 text-hs-800 rounded-xl p-4 text-center hover:bg-hs-200 transition flex items-center justify-center space-x-2">
+            <i class="fas fa-comments text-xl"></i>
+            <span class="font-semibold">Check Messages</span>
         </a>
     </div>
 </div>

@@ -51,20 +51,23 @@
                 </a>
                 
                 <div class="hidden md:flex items-center space-x-1">
-                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
                         <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('discover') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('discover') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
                         <i class="fas fa-search mr-2"></i> Discover
                     </a>
-                    <a href="{{ url_for('matches') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('matches') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
                         <i class="fas fa-handshake mr-2"></i> Matches
                     </a>
-                    <a href="{{ url_for('messages') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('messages') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
                         <i class="fas fa-comment-dots mr-2"></i> Messages
                     </a>
-                    <a href="{{ url_for('profile') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                    <a href="{{ url_for('profile') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
                         <i class="fas fa-user mr-2"></i> Profile
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="px-3 py-1.5 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 hover:text-hs-800 transition">
+                        <i class="fas fa-cog mr-2"></i> Settings
                     </a>
                     <a href="{{ url_for('logout') }}" class="ml-2 px-4 py-1.5 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
@@ -78,12 +81,27 @@
             
             <div id="mobileMenu" class="hidden md:hidden pb-4">
                 <div class="flex flex-col space-y-2">
-                    <a href="{{ url_for('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a>
-                    <a href="{{ url_for('discover') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-search mr-2"></i> Discover</a>
-                    <a href="{{ url_for('matches') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-handshake mr-2"></i> Matches</a>
-                    <a href="{{ url_for('messages') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-comment-dots mr-2"></i> Messages</a>
-                    <a href="{{ url_for('profile') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition"><i class="fas fa-user mr-2"></i> Profile</a>
-                    <a href="{{ url_for('logout') }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition text-center"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                    <a href="{{ url_for('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-tachometer-alt mr-2 w-5"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('discover') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-search mr-2 w-5"></i> Discover
+                    </a>
+                    <a href="{{ url_for('matches') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-handshake mr-2 w-5"></i> Matches
+                    </a>
+                    <a href="{{ url_for('messages') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-comment-dots mr-2 w-5"></i> Messages
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-user mr-2 w-5"></i> Profile
+                    </a>
+                    <a href="{{ url_for('settings') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-hs-600 hover:bg-hs-50 transition">
+                        <i class="fas fa-cog mr-2 w-5"></i> Settings
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-hs-600 text-white hover:bg-hs-700 transition text-center">
+                        <i class="fas fa-sign-out-alt mr-2 w-5"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>

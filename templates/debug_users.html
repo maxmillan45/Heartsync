@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Debug - Users{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl p-8 border border-hs-200">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-hs-900">Database Users</h1>
+        <a href="{{ url_for('reset_all') }}" class="bg-hs-600 text-white px-4 py-2 rounded-lg hover:bg-hs-700 transition">
+            <i class="fas fa-trash-alt mr-2"></i> Reset All Discover Data
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-hs-200 bg-hs-50">
+                    <th class="text-left py-3 px-3">Email</th>
+                    <th class="text-left py-3 px-3">Name</th>
+                    <th class="text-left py-3 px-3">Age</th>
+                    <th class="text-left py-3 px-3">Profile</th>
+                    <th class="text-left py-3 px-3">Passed</th>
+                    <th class="text-left py-3 px-3">Seen</th>
+                    <th class="text-left py-3 px-3">Match</th>
+                    <th class="text-left py-3 px-3">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-b border-hs-100 hover:bg-hs-50">
+                    <td class="py-2 px-3 font-mono text-xs">{{ user.email }}</td>
+                    <td class="py-2 px-3">{{ user.name }}</td>
+                    <td class="py-2 px-3">{{ user.age or '-' }}</td>
+                    <td class="py-2 px-3">
+                        {% if user.profile_complete %}
+                        <span class="text-green-600"><i class="fas fa-check-circle"></i> Yes</span>
+                        {% else %}
+                        <span class="text-red-600"><i class="fas fa-times-circle"></i> No</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-3">
+                        {% if user.is_passed %}
+                        <span class="text-orange-600"><i class="fas fa-ban"></i> Yes</span>
+                        {% else %}
+                        <span class="text-gray-400">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-3">
+                        {% if user.is_seen %}
+                        <span class="text-yellow-600"><i class="fas fa-eye"></i> Yes</span>
+                        {% else %}
+                        <span class="text-gray-400">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-3">
+                        {% if user.is_match %}
+                        <span class="text-green-600"><i class="fas fa-handshake"></i> Yes</span>
+                        {% else %}
+                        <span class="text-gray-400">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2 px-3">
+                        {% if not user.is_current and user.profile_complete %}
+                        <a href="{{ url_for('view_other_profile', email=user.email) }}" class="text-hs-600 hover:underline">
+                            <i class="fas fa-user"></i> View
+                        </a>
+                        {% elif user.is_current %}
+                        <span class="text-blue-600"><i class="fas fa-user-check"></i> Current</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="mt-6 text-center text-sm text-hs-500">
+        <i class="fas fa-info-circle mr-1"></i> Total users: {{ users|length }}
+    </div>
+</div>
+{% endblock %}
