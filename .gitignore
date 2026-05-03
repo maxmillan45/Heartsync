@@ -25,4 +25,4 @@ static/uploads/photos/
 
 # Git
 .DS_Store
-EOF
+EOF.env
