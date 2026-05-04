@@ -342,6 +342,9 @@ def setup_profile():
 @login_required
 def profile():
     profile_data = get_profile(session['user_id']) or {}
+    user_data = get_user(session['user_id'])
+    if user_data:
+        profile_data['full_name'] = user_data.get('full_name')
     return render_template('profile.html', user=profile_data, user_email=session['user_id'])
 
 @app.route('/profile/<email>')
@@ -351,12 +354,21 @@ def view_other_profile(email):
         return redirect(url_for('profile'))
     
     profile_data = get_profile(email)
-    if not profile_data:
+    user_data = get_user(email)
+    
+    if not profile_data or not user_data:
         flash('User not found', 'danger')
         return redirect(url_for('discover'))
     
+    # Add full_name to profile_data
+    profile_data['full_name'] = user_data.get('full_name')
+    
     is_match = email in get_matches(session['user_id'])
-    return render_template('view_profile.html', user=profile_data, is_match=is_match)
+    
+    return render_template('view_profile.html', 
+                         user=profile_data, 
+                         user_email=email, 
+                         is_match=is_match)
 
 # ---------- UPLOAD AVATAR (Without Pillow) ----------
 
@@ -427,6 +439,11 @@ def dashboard():
         fields = ['age', 'location', 'bio', 'interests']
         filled = sum(1 for f in fields if profile.get(f))
         completion = int((filled / len(fields)) * 100)
+    
+    # Add full_name to profile for display
+    user_data = get_user(session['user_id'])
+    if user_data:
+        profile['full_name'] = user_data.get('full_name')
     
     return render_template('dashboard.html', 
                          user=profile,
@@ -553,14 +570,15 @@ def send_message():
     message = data.get('message')
     
     if not to_email or not message:
-        return jsonify({'success': False})
+        return jsonify({'success': False, 'message': 'Missing required fields'})
     
     if to_email not in get_matches(session['user_id']):
-        return jsonify({'success': False})
+        return jsonify({'success': False, 'message': 'You can only message your matches'})
     
     chat_id = get_chat_id(session['user_id'], to_email)
     add_message(chat_id, session['user_id'], to_email, message)
-    return jsonify({'success': True})
+    
+    return jsonify({'success': True, 'message': 'Message sent'})
 
 @app.route('/api/get-messages', methods=['GET'])
 @login_required
@@ -598,6 +616,9 @@ def update_profile():
 @login_required
 def settings():
     profile_data = get_profile(session['user_id']) or {}
+    user_data = get_user(session['user_id'])
+    if user_data:
+        profile_data['full_name'] = user_data.get('full_name')
     return render_template('settings.html', user=profile_data, user_email=session['user_id'])
 
 @app.route('/logout')
